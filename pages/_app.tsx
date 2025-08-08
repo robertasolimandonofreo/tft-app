@@ -2,9 +2,34 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import type { AppProps } from 'next/app'
 import { useState } from 'react'
 import Head from 'next/head'
+import '../src/styles/globals.css'
+
+interface ApiError {
+  response?: {
+    status: number
+  }
+}
+
+function isApiError(error: unknown): error is ApiError {
+  return typeof error === 'object' && error !== null && 'response' in error
+}
 
 export default function App({ Component, pageProps }: AppProps) {
-  const [queryClient] = useState(() => new QueryClient())
+  const [queryClient] = useState(() => new QueryClient({
+    defaultOptions: {
+      queries: {
+        staleTime: 5 * 60 * 1000, // 5 minutes
+        gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
+        refetchOnWindowFocus: false,
+        retry: (failureCount: number, error: unknown) => {
+          if (isApiError(error) && error.response?.status === 404) return false
+          if (isApiError(error) && error.response?.status === 429) return false
+          return failureCount < 2
+        },
+      },
+    },
+  }))
+
   return (
     <QueryClientProvider client={queryClient}>
       <Head>

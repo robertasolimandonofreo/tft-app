@@ -1,12 +1,13 @@
 import { useState } from 'react'
 import Link from 'next/link'
-import { useSummoner, useHealthCheck } from '../src/hooks/usePlayer';
+import { MainLayout } from '../src/components/layout/MainLayout'
+import { useSummoner, useHealthCheck } from '../src/hooks/usePlayer'
 
 export default function Home() {
   const [puuid, setPuuid] = useState('')
   const [input, setInput] = useState('')
   
-  const { data: healthData, isError: healthError } = useHealthCheck()
+  const { data: healthData, error: healthError } = useHealthCheck()
   const { data: summonerData, isLoading, error } = useSummoner(puuid)
 
   const handleSearch = () => {
@@ -16,154 +17,210 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold text-white mb-4">
+    <MainLayout showNavigation={false}>
+      <div className="space-y-12">
+        {/* Hero Section */}
+        <div className="text-center space-y-6">
+          <h1 className="text-6xl font-bold text-white mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
             TFT Stats Brasil
           </h1>
-          <p className="text-xl text-blue-200">
-            Estatísticas completas do Teamfight Tactics
+          <p className="text-xl text-blue-200 max-w-2xl mx-auto leading-relaxed">
+            A plataforma mais completa para análise de dados do Teamfight Tactics no Brasil. 
+            Acompanhe rankings, estatísticas e análises detalhadas dos melhores jogadores.
           </p>
           
           {/* Health Status */}
-          <div className="mt-4">
+          <div className="flex justify-center">
             {healthError ? (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-red-500/20 text-red-400">
-                🔴 API Offline
+              <span className="inline-flex items-center px-4 py-2 rounded-full text-sm bg-red-500/20 text-red-400 border border-red-500/30">
+                🔴 API Offline - Alguns dados podem estar desatualizados
               </span>
             ) : (
-              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-green-500/20 text-green-400">
-                🟢 API Online
+              <span className="inline-flex items-center px-4 py-2 rounded-full text-sm bg-green-500/20 text-green-400 border border-green-500/30">
+                🟢 API Online - Dados em tempo real
               </span>
             )}
           </div>
         </div>
 
-        {/* Navigation */}
-        <div className="flex flex-wrap justify-center gap-4 mb-12">
-          <Link 
-            href="/leagues" 
-            className="px-6 py-3 bg-yellow-500 hover:bg-yellow-600 text-black font-semibold rounded-lg transition-colors"
-          >
-            🏆 High Tier Leagues
+        {/* Navigation Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <Link href="/leagues" className="group">
+            <div className="bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 rounded-xl p-6 hover:border-yellow-400/50 transition-all duration-300 group-hover:scale-105">
+              <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">🏆</div>
+              <h3 className="text-xl font-bold text-yellow-300 mb-2">High Tier Leagues</h3>
+              <p className="text-yellow-200/80 text-sm">
+                Challenger, Grandmaster e Master. Os melhores jogadores do servidor.
+              </p>
+            </div>
           </Link>
-          <Link 
-            href="/ranked" 
-            className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-colors"
-          >
-            📊 Ranked Ladder
+
+          <Link href="/ranked" className="group">
+            <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 rounded-xl p-6 hover:border-purple-400/50 transition-all duration-300 group-hover:scale-105">
+              <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">📊</div>
+              <h3 className="text-xl font-bold text-purple-300 mb-2">Ranked Ladder</h3>
+              <p className="text-purple-200/80 text-sm">
+                Rankings completos com estatísticas detalhadas por rating.
+              </p>
+            </div>
           </Link>
-          <Link 
-            href="/search" 
-            className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
-          >
-            🔍 Advanced Search
+
+          <Link href="/search" className="group">
+            <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-500/30 rounded-xl p-6 hover:border-blue-400/50 transition-all duration-300 group-hover:scale-105">
+              <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">🔍</div>
+              <h3 className="text-xl font-bold text-blue-300 mb-2">Busca Avançada</h3>
+              <p className="text-blue-200/80 text-sm">
+                Explore jogadores por tier, divisão e outras características.
+              </p>
+            </div>
+          </Link>
+
+          <Link href="/analytics" className="group">
+            <div className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-xl p-6 hover:border-green-400/50 transition-all duration-300 group-hover:scale-105">
+              <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">📈</div>
+              <h3 className="text-xl font-bold text-green-300 mb-2">Analytics</h3>
+              <p className="text-green-200/80 text-sm">
+                Análises estatísticas avançadas e insights sobre o meta.
+              </p>
+            </div>
           </Link>
         </div>
 
-        {/* Quick Summoner Search */}
+        {/* Quick Search */}
         <div className="max-w-2xl mx-auto">
-          <div className="bg-white/10 backdrop-blur-lg rounded-xl p-8 shadow-xl">
+          <div className="bg-white/10 backdrop-blur-lg rounded-xl p-8 border border-white/20">
             <h2 className="text-2xl font-bold text-white mb-6 text-center">
-              Buscar Jogador
+              🎮 Busca Rápida de Jogador
             </h2>
             
-            <div className="flex gap-4 mb-6">
-              <input
-                type="text"
-                placeholder="Digite o PUUID do jogador"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                className="flex-1 px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500"
-              />
-              <button 
-                onClick={handleSearch}
-                disabled={!input.trim()}
-                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors"
-              >
-                Buscar
-              </button>
+            <div className="space-y-4">
+              <div className="flex gap-3">
+                <input
+                  type="text"
+                  placeholder="Digite o PUUID do jogador"
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+                  className="flex-1 px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                />
+                <button 
+                  onClick={handleSearch}
+                  disabled={!input.trim()}
+                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors"
+                >
+                  Buscar
+                </button>
+              </div>
+
+              {/* Loading State */}
+              {isLoading && (
+                <div className="text-center py-6">
+                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-400 mx-auto mb-3"></div>
+                  <p className="text-white/80">Buscando jogador...</p>
+                </div>
+              )}
+
+              {/* Error State */}
+              {error && (
+                <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4">
+                  <p className="text-red-300 text-center">
+                    ❌ Jogador não encontrado. Verifique o PUUID e tente novamente.
+                  </p>
+                </div>
+              )}
+
+              {/* Success State */}
+              {summonerData && (
+                <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-6">
+                  <h3 className="text-lg font-bold text-white mb-4 text-center">
+                    ✅ Jogador Encontrado
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-6">
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-green-300">Nome:</span>
+                        <span className="text-white font-semibold">{summonerData.name || 'N/A'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-green-300">Level:</span>
+                        <span className="text-white font-semibold">{summonerData.summonerLevel || 'N/A'}</span>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-green-300">ID:</span>
+                        <span className="text-white font-mono text-xs">{summonerData.id || 'N/A'}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-green-300">PUUID:</span>
+                        <span className="text-white font-mono text-xs">{puuid.slice(0, 8)}...</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-3 justify-center">
+                    <Link 
+                      href={`/player/${puuid}`}
+                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                    >
+                      Ver Perfil Completo
+                    </Link>
+                    <Link 
+                      href={`/player/${puuid}/matches`}
+                      className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors"
+                    >
+                      Ver Partidas
+                    </Link>
+                  </div>
+                </div>
+              )}
             </div>
-
-            {/* Loading State */}
-            {isLoading && (
-              <div className="text-center py-8">
-                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
-                <p className="text-white/80">Buscando jogador...</p>
-              </div>
-            )}
-
-            {/* Error State */}
-            {error && (
-              <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4 mb-6">
-                <p className="text-red-300">
-                  ❌ Erro ao buscar jogador. Verifique o PUUID e tente novamente.
-                </p>
-              </div>
-            )}
-
-            {/* Success State */}
-            {summonerData && (
-              <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-6">
-                <h3 className="text-xl font-bold text-white mb-4">
-                  🎮 Dados do Jogador
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-blue-300">Nome:</span>
-                    <span className="text-white ml-2 font-semibold">
-                      {summonerData.name || 'N/A'}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-blue-300">Level:</span>
-                    <span className="text-white ml-2 font-semibold">
-                      {summonerData.summonerLevel || 'N/A'}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-blue-300">PUUID:</span>
-                    <span className="text-white ml-2 font-mono text-xs">
-                      {summonerData.puuid || puuid}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-blue-300">ID:</span>
-                    <span className="text-white ml-2 font-mono text-xs">
-                      {summonerData.id || 'N/A'}
-                    </span>
-                  </div>
-                </div>
-                
-                <div className="mt-6 flex gap-3">
-                  <Link 
-                    href={`/player/${puuid}`}
-                    className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
-                  >
-                    Ver Perfil Completo
-                  </Link>
-                  <Link 
-                    href={`/player/${puuid}/matches`}
-                    className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors"
-                  >
-                    Ver Partidas
-                  </Link>
-                </div>
-              </div>
-            )}
 
             {/* Help Text */}
             <div className="mt-6 text-center text-white/60 text-sm">
-              💡 O PUUID é um identificador único do jogador.
-              <br />
-              Você pode encontrá-lo usando ferramentas como op.gg ou similar.
+              💡 O PUUID é um identificador único do jogador. Você pode encontrá-lo em sites como op.gg ou u.gg.
             </div>
           </div>
         </div>
+
+        {/* Features */}
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-white mb-8">
+            ⚡ Recursos Principais
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="space-y-4">
+              <div className="text-4xl">🚀</div>
+              <h3 className="text-xl font-bold text-white">Dados em Tempo Real</h3>
+              <p className="text-white/70">
+                Informações atualizadas diretamente da API oficial da Riot Games
+              </p>
+            </div>
+            <div className="space-y-4">
+              <div className="text-4xl">📊</div>
+              <h3 className="text-xl font-bold text-white">Análises Avançadas</h3>
+              <p className="text-white/70">
+                Estatísticas detalhadas, tendências e insights sobre o meta atual
+              </p>
+            </div>
+            <div className="space-y-4">
+              <div className="text-4xl">🎯</div>
+              <h3 className="text-xl font-bold text-white">Foco no Brasil</h3>
+              <p className="text-white/70">
+                Especializado no servidor brasileiro com dados regionais específicos
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Footer */}
+        <div className="text-center text-white/60 text-sm border-t border-white/10 pt-8">
+          <p>
+            🎮 TFT Stats Brasil não é afiliado à Riot Games • 
+            Dados fornecidos pela API oficial do League of Legends
+          </p>
+        </div>
       </div>
-    </div>
+    </MainLayout>
   )
 }
