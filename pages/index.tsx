@@ -44,8 +44,8 @@ export default function Home() {
             TFT Stats Brasil
           </h1>
           <p className="text-xl text-blue-200 max-w-2xl mx-auto leading-relaxed">
-            A plataforma mais completa para análise de dados do Teamfight Tactics no Brasil. 
-            Acompanhe rankings, estatísticas e análises detalhadas dos melhores jogadores.
+            A plataforma para análise de dados do Teamfight Tactics no Brasil. 
+            Acompanhe rankings e análises dos melhores jogadores.
           </p>
           
           {/* Health Status */}
@@ -74,15 +74,6 @@ export default function Home() {
             </div>
           </Link>
 
-          <Link href="/search" className="group">
-            <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-500/30 rounded-xl p-6 hover:border-blue-400/50 transition-all duration-300 group-hover:scale-105">
-              <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">🔍</div>
-              <h3 className="text-xl font-bold text-blue-300 mb-2">Busca Avançada</h3>
-              <p className="text-blue-200/80 text-sm">
-                Explore jogadores por tier, divisão e outras características.
-              </p>
-            </div>
-          </Link>
         </div>
 
         {/* Quick Search */}
@@ -256,13 +247,6 @@ export default function Home() {
               <h3 className="text-xl font-bold text-white">Dados em Tempo Real</h3>
               <p className="text-white/70">
                 Informações atualizadas diretamente da API oficial da Riot Games
-              </p>
-            </div>
-            <div className="space-y-4">
-              <div className="text-4xl">📊</div>
-              <h3 className="text-xl font-bold text-white">Análises Avançadas</h3>
-              <p className="text-white/70">
-                Estatísticas detalhadas, tendências e insights sobre o meta atual
               </p>
             </div>
             <div className="space-y-4">
