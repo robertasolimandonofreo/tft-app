@@ -13,7 +13,6 @@ export default function Home() {
   const { data: healthData, error: healthError } = useHealthCheck()
   const { data: summonerData, isLoading: summonerLoading, error: summonerError } = useSummoner(puuid)
   
-  // Trigger search only when explicitly requested
   const [shouldSearch, setShouldSearch] = useState(false)
   const [searchKey, setSearchKey] = useState('')
   
@@ -101,38 +100,7 @@ export default function Home() {
             <h2 className="text-2xl font-bold text-white mb-6 text-center">
               🎮 Busca Rápida de Jogador
             </h2>
-            
-            {/* Search Mode Toggle */}
-            <div className="flex justify-center mb-6">
-              <div className="flex bg-white/10 rounded-lg p-1">
-                <button
-                  onClick={() => {
-                    setSearchMode('name')
-                    clearSearch()
-                  }}
-                  className={`px-4 py-2 rounded-lg transition-colors ${
-                    searchMode === 'name'
-                      ? 'bg-blue-600 text-white'
-                      : 'text-white/70 hover:text-white'
-                  }`}
-                >
-                  Por Nome
-                </button>
-                <button
-                  onClick={() => {
-                    setSearchMode('puuid')
-                    clearSearch()
-                  }}
-                  className={`px-4 py-2 rounded-lg transition-colors ${
-                    searchMode === 'puuid'
-                      ? 'bg-blue-600 text-white'
-                      : 'text-white/70 hover:text-white'
-                  }`}
-                >
-                  Por PUUID
-                </button>
-              </div>
-            </div>
+
             
             <div className="space-y-4">
               {searchMode === 'name' ? (
@@ -247,21 +215,7 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
-                  
-                  <div className="flex gap-3 justify-center">
-                    <Link 
-                      href={`/player/${playerData?.puuid || puuid}`}
-                      className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
-                    >
-                      Ver Perfil Completo
-                    </Link>
-                    <Link 
-                      href={`/player/${playerData?.puuid || puuid}/matches`}
-                      className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors"
-                    >
-                      Ver Partidas
-                    </Link>
-                  </div>
+              
                 </div>
               )}
             </div>
