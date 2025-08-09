@@ -28,18 +28,20 @@ export default function LeaguesPage() {
     let players: LeagueEntry[] = []
 
     if (activeTier === 'all') {
-      players = [
-        ...data.challenger.entries,
-        ...data.grandmaster.entries,
-        ...data.master.entries
-      ]
+      // Pegar TOP 10 de cada tier (máximo 30 total)
+      const topChallenger = data.challenger.entries.slice(0, 10)
+      const topGrandmaster = data.grandmaster.entries.slice(0, 10) 
+      const topMaster = data.master.entries.slice(0, 10)
+      
+      players = [...topChallenger, ...topGrandmaster, ...topMaster]
     } else {
-      players = data[activeTier]?.entries || []
+      // Pegar TOP 10 do tier específico
+      players = data[activeTier]?.entries.slice(0, 10) || []
     }
 
     if (searchTerm) {
       players = players.filter(player =>
-        player.summonerName.toLowerCase().includes(searchTerm.toLowerCase())
+        player.summonerName?.toLowerCase().includes(searchTerm.toLowerCase()) || false
       )
     }
 
@@ -53,40 +55,58 @@ export default function LeaguesPage() {
       return null
     }
 
-    const allPlayers = [
-      ...data.challenger.entries,
-      ...data.grandmaster.entries,
-      ...data.master.entries
-    ]
+    // Sempre considerar apenas TOP 10 de cada tier
+    const top10Challenger = data.challenger.entries.slice(0, 10)
+    const top10Grandmaster = data.grandmaster.entries.slice(0, 10)
+    const top10Master = data.master.entries.slice(0, 10)
+    
+    const allTop10Players = [...top10Challenger, ...top10Grandmaster, ...top10Master]
 
     return {
-      total: allPlayers.length,
-      challenger: data.challenger.entries.length,
-      grandmaster: data.grandmaster.entries.length,
-      master: data.master.entries.length,
-      avgLP: Math.round(allPlayers.reduce((sum, p) => sum + p.leaguePoints, 0) / allPlayers.length),
-      topLP: Math.max(...allPlayers.map(p => p.leaguePoints))
+      total: allTop10Players.length,
+      challenger: top10Challenger.length,
+      grandmaster: top10Grandmaster.length,
+      master: top10Master.length,
+      avgLP: Math.round(allTop10Players.reduce((sum, p) => sum + p.leaguePoints, 0) / allTop10Players.length),
+      topLP: Math.max(...allTop10Players.map(p => p.leaguePoints))
     }
   }
 
   const stats = getTierStats()
 
+  const getDisplayCount = (tier: ActiveTier) => {
+    if (!stats) return 0
+    
+    switch (tier) {
+      case 'all': 
+        return Math.min(30, stats.total) // Máximo 30 (10 de cada tier)
+      case 'challenger': 
+        return Math.min(10, stats.challenger)
+      case 'grandmaster': 
+        return Math.min(10, stats.grandmaster)  
+      case 'master': 
+        return Math.min(10, stats.master)
+      default: 
+        return 0
+    }
+  }
+
   return (
-    <MainLayout title="High Tier Leagues" showBackButton>
+    <MainLayout title="TOP 10 High Tier" showBackButton>
       <div className="space-y-8">
         {/* Header */}
         <div className="text-center">
           <h1 className="text-4xl font-bold text-white mb-4">
-            🏆 High Tier Leagues
+            👑 TOP 10 Brasil TFT
           </h1>
           <p className="text-blue-200 text-lg">
-            Os melhores jogadores do TFT Brasil
+            Os 10 melhores jogadores de cada tier no servidor brasileiro
           </p>
         </div>
 
         {/* Loading State */}
         {isLoading && (
-          <LoadingSpinner size="lg" text="Carregando rankings..." />
+          <LoadingSpinner size="lg" text="Carregando TOP 10..." />
         )}
 
         {/* Error State */}
@@ -104,36 +124,36 @@ export default function LeaguesPage() {
             {/* Stats Overview */}
             <div>
               <h2 className="text-2xl font-bold text-white mb-6">
-                📊 Visão Geral
+                📊 Estatísticas dos TOP 10
               </h2>
               <StatsGrid>
                 <StatsCard
-                  title="Total de Jogadores"
-                  value={stats.total}
-                  icon="👥"
-                  color="blue"
-                  subtitle="Master, GM, Challenger"
-                />
-                <StatsCard
-                  title="Challenger"
-                  value={stats.challenger}
+                  title="Challenger TOP 10"
+                  value={`${stats.challenger}/10`}
                   icon="👑"
                   color="yellow"
-                  subtitle="Elite do servidor"
+                  subtitle="Elite absoluta"
                 />
                 <StatsCard
-                  title="LP Médio"
+                  title="Grandmaster TOP 10"
+                  value={`${stats.grandmaster}/10`}
+                  icon="🔴"
+                  color="red"
+                  subtitle="Alta competição"
+                />
+                <StatsCard
+                  title="Master TOP 10"
+                  value={`${stats.master}/10`}
+                  icon="🟣"
+                  color="purple"
+                  subtitle="Jogadores dedicados"
+                />
+                <StatsCard
+                  title="LP Médio TOP 10"
                   value={stats.avgLP}
                   icon="⭐"
-                  color="purple"
+                  color="blue"
                   subtitle={`Máximo: ${stats.topLP}`}
-                />
-                <StatsCard
-                  title="Grandmaster + Master"
-                  value={stats.grandmaster + stats.master}
-                  icon="🔥"
-                  color="red"
-                  subtitle="High tier players"
                 />
               </StatsGrid>
             </div>
@@ -144,10 +164,10 @@ export default function LeaguesPage() {
                 {/* Tier Filter */}
                 <div className="flex flex-wrap gap-2">
                   {[
-                    { key: 'all' as const, label: 'Todos', count: stats.total },
-                    { key: 'challenger' as const, label: 'Challenger', count: stats.challenger },
-                    { key: 'grandmaster' as const, label: 'Grandmaster', count: stats.grandmaster },
-                    { key: 'master' as const, label: 'Master', count: stats.master },
+                    { key: 'all' as const, label: 'Todos TOP 10', count: getDisplayCount('all') },
+                    { key: 'challenger' as const, label: 'Challenger', count: getDisplayCount('challenger') },
+                    { key: 'grandmaster' as const, label: 'Grandmaster', count: getDisplayCount('grandmaster') },
+                    { key: 'master' as const, label: 'Master', count: getDisplayCount('master') },
                   ].map(({ key, label, count }) => (
                     <button
                       key={key}
@@ -163,11 +183,11 @@ export default function LeaguesPage() {
                   ))}
                 </div>
 
-                {/* Search */}
+                {/* Search and Actions */}
                 <div className="flex gap-3">
                   <input
                     type="text"
-                    placeholder="Buscar jogador..."
+                    placeholder="Buscar no TOP 10..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="px-4 py-2 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -182,13 +202,13 @@ export default function LeaguesPage() {
               </div>
             </div>
 
-            {/* Players Table */}
+            {/* TOP 10 Table */}
             <div className="bg-white/10 backdrop-blur-lg rounded-xl overflow-hidden border border-white/20">
               <div className="overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-black/30">
                     <tr className="text-left">
-                      <th className="px-6 py-4 text-blue-300 font-semibold">#</th>
+                      <th className="px-6 py-4 text-blue-300 font-semibold">Rank</th>
                       <th className="px-6 py-4 text-blue-300 font-semibold">Jogador</th>
                       <th className="px-6 py-4 text-blue-300 font-semibold">Tier</th>
                       <th className="px-6 py-4 text-blue-300 font-semibold">LP</th>
@@ -200,7 +220,7 @@ export default function LeaguesPage() {
                   </thead>
                   <tbody>
                     {filteredPlayers.length > 0 ? (
-                      filteredPlayers.map((entry, index) => {
+                      filteredPlayers.slice(0, 30).map((entry, index) => { // Máximo 30 na tabela
                         const winRate = entry.wins + entry.losses > 0 
                           ? ((entry.wins / (entry.wins + entry.losses)) * 100).toFixed(1)
                           : '0.0'
@@ -223,30 +243,39 @@ export default function LeaguesPage() {
                           }
                         }
 
+                        const getRankIcon = (index: number) => {
+                          if (index === 0) return '🥇'
+                          if (index === 1) return '🥈'
+                          if (index === 2) return '🥉'
+                          return `#${index + 1}`
+                        }
+
+                        // Função para gerar chave única
+                        const getUniqueKey = (entry: LeagueEntry, index: number): string => {
+                          if (entry.puuid) return entry.puuid
+                          if (entry.summonerId) return entry.summonerId
+                          return `entry-${index}`
+                        }
+
                         return (
                           <tr 
-                            key={entry.summonerId}
+                            key={getUniqueKey(entry, index)}
                             onClick={() => handlePlayerClick(entry)}
                             className="border-b border-white/10 hover:bg-white/5 cursor-pointer transition-colors"
                           >
                             <td className="px-6 py-4">
                               <div className="flex items-center">
-                                {index < 3 && (
-                                  <span className="text-xl mr-2">
-                                    {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
-                                  </span>
-                                )}
-                                <span className="text-blue-400 font-bold">
-                                  #{index + 1}
+                                <span className="text-2xl font-bold text-yellow-400">
+                                  {getRankIcon(index)}
                                 </span>
                               </div>
                             </td>
                             <td className="px-6 py-4">
                               <div className="text-white font-semibold">
-                                {entry.summonerName}
+                                {entry.summonerName || 'Carregando...'}
                               </div>
                               <div className="text-gray-400 text-sm">
-                                {entry.queueType}
+                                {entry.queueType || 'RANKED_TFT'}
                               </div>
                             </td>
                             <td className="px-6 py-4">
@@ -260,7 +289,7 @@ export default function LeaguesPage() {
                               </div>
                             </td>
                             <td className="px-6 py-4">
-                              <span className="text-yellow-400 font-bold">
+                              <span className="text-yellow-400 font-bold text-lg">
                                 {entry.leaguePoints.toLocaleString()}
                               </span>
                             </td>
@@ -333,8 +362,14 @@ export default function LeaguesPage() {
 
             {/* Footer Info */}
             <div className="text-center text-white/60 text-sm">
-              🔄 Dados atualizados automaticamente a cada 30 minutos • 
+              👑 Mostrando TOP 10 de cada tier • 
+              🔄 Dados atualizados automaticamente • 
               Total de {filteredPlayers.length} jogadores exibidos
+              {activeTier === 'all' && (
+                <span className="block mt-1">
+                  📋 Máximo 30 jogadores (10 de cada tier)
+                </span>
+              )}
             </div>
           </>
         )}

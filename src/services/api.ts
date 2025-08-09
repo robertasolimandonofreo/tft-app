@@ -19,6 +19,11 @@ api.interceptors.response.use(
 // Summoner API
 export const summonerApi = {
   getByPUUID: (puuid: string) => api.get(`/summoner?puuid=${puuid}`),
+  searchByName: (gameName: string, tagLine?: string) => {
+    const params = new URLSearchParams({ gameName })
+    if (tagLine) params.append('tagLine', tagLine)
+    return api.get(`/search/player?${params}`)
+  },
 }
 
 // League API

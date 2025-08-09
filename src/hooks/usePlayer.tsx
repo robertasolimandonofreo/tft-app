@@ -57,61 +57,6 @@ export function useSummoner(puuid: string) {
   })
 }
 
-export function useHighTierLeagues() {
-  const queryClient = useQueryClient()
-  
-  const challenger = useQuery({
-    queryKey: ['league', 'challenger'],
-    queryFn: async () => {
-      const { data } = await leagueApi.getChallenger()
-      return { ...data, tier: 'CHALLENGER' } as HighTierLeague
-    },
-    staleTime: 30 * 60 * 1000,
-    ...queryDefaults,
-  })
-
-  const grandmaster = useQuery({
-    queryKey: ['league', 'grandmaster'],
-    queryFn: async () => {
-      const { data } = await leagueApi.getGrandmaster()
-      return { ...data, tier: 'GRANDMASTER' } as HighTierLeague
-    },
-    staleTime: 30 * 60 * 1000,
-    ...queryDefaults,
-  })
-
-  const master = useQuery({
-    queryKey: ['league', 'master'],
-    queryFn: async () => {
-      const { data } = await leagueApi.getMaster()
-      return { ...data, tier: 'MASTER' } as HighTierLeague
-    },
-    staleTime: 30 * 60 * 1000,
-    ...queryDefaults,
-  })
-
-  const refreshAll = () => {
-    queryClient.invalidateQueries({ queryKey: ['league', 'challenger'] })
-    queryClient.invalidateQueries({ queryKey: ['league', 'grandmaster'] })
-    queryClient.invalidateQueries({ queryKey: ['league', 'master'] })
-    toast.info('Atualizando dados', 'Carregando informações mais recentes...')
-  }
-
-  return {
-    challenger,
-    grandmaster,
-    master,
-    refreshAll,
-    isLoading: challenger.isLoading || grandmaster.isLoading || master.isLoading,
-    hasError: challenger.error || grandmaster.error || master.error,
-    data: {
-      challenger: challenger.data,
-      grandmaster: grandmaster.data,
-      master: master.data,
-    }
-  }
-}
-
 export function useLeagueEntries(tier: Tier, division: Division, page = 1) {
   return useQuery({
     queryKey: ['league', 'entries', tier, division, page],
@@ -157,6 +102,99 @@ export function useBatchSummoners(puuids: string[]) {
     },
     enabled: puuids.length > 0 && puuids.every(p => p.length > 20),
     staleTime: 30 * 60 * 1000,
+    ...queryDefaults,
+  })
+}
+
+export function useHighTierLeagues() {
+  const queryClient = useQueryClient()
+  
+  const challenger = useQuery({
+    queryKey: ['league', 'challenger'],
+    queryFn: async () => {
+      const { data } = await leagueApi.getChallenger()
+      // Limitar aos primeiros 10
+      const limitedData = {
+        ...data,
+        entries: data.entries.slice(0, 10)
+      }
+      return { ...limitedData, tier: 'CHALLENGER' } as HighTierLeague
+    },
+    staleTime: 30 * 60 * 1000,
+    ...queryDefaults,
+  })
+
+  const grandmaster = useQuery({
+    queryKey: ['league', 'grandmaster'],
+    queryFn: async () => {
+      const { data } = await leagueApi.getGrandmaster()
+      // Limitar aos primeiros 10
+      const limitedData = {
+        ...data,
+        entries: data.entries.slice(0, 10)
+      }
+      return { ...limitedData, tier: 'GRANDMASTER' } as HighTierLeague
+    },
+    staleTime: 30 * 60 * 1000,
+    ...queryDefaults,
+  })
+
+  const master = useQuery({
+    queryKey: ['league', 'master'],
+    queryFn: async () => {
+      const { data } = await leagueApi.getMaster()
+      // Limitar aos primeiros 10
+      const limitedData = {
+        ...data,
+        entries: data.entries.slice(0, 10)
+      }
+      return { ...limitedData, tier: 'MASTER' } as HighTierLeague
+    },
+    staleTime: 30 * 60 * 1000,
+    ...queryDefaults,
+  })
+
+  const refreshAll = () => {
+    queryClient.invalidateQueries({ queryKey: ['league', 'challenger'] })
+    queryClient.invalidateQueries({ queryKey: ['league', 'grandmaster'] })
+    queryClient.invalidateQueries({ queryKey: ['league', 'master'] })
+    toast.info('Atualizando dados', 'Carregando informações mais recentes...')
+  }
+
+  return {
+    challenger,
+    grandmaster,
+    master,
+    refreshAll,
+    isLoading: challenger.isLoading || grandmaster.isLoading || master.isLoading,
+    hasError: challenger.error || grandmaster.error || master.error,
+    data: {
+      challenger: challenger.data,
+      grandmaster: grandmaster.data,
+      master: master.data,
+    }
+  }
+}
+
+// Adicionar no src/hooks/usePlayer.tsx
+
+export function useSearchPlayer(gameName: string, tagLine?: string) {
+  return useQuery({
+    queryKey: ['search', 'player', gameName, tagLine],
+    queryFn: async () => {
+      try {
+        const { data } = await summonerApi.searchByName(gameName, tagLine)
+        toast.success('Jogador encontrado', `${data.gameName}#${data.tagLine}`)
+        return data
+      } catch (error: unknown) {
+        if (isApiError(error) && error.response?.status === 404) {
+          toast.error('Jogador não encontrado', `Verifique o nome: ${gameName}#${tagLine || 'BR1'}`)
+        }
+        throw error
+      }
+    },
+    enabled: !!gameName && gameName.length > 2,
+    staleTime: 5 * 60 * 1000,
     ...queryDefaults,
   })
 }
