@@ -55,32 +55,12 @@ export default function Home() {
             </div>
           </Link>
 
-          <Link href="/ranked" className="group">
-            <div className="bg-gradient-to-br from-purple-500/20 to-pink-500/20 border border-purple-500/30 rounded-xl p-6 hover:border-purple-400/50 transition-all duration-300 group-hover:scale-105">
-              <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">📊</div>
-              <h3 className="text-xl font-bold text-purple-300 mb-2">Ranked Ladder</h3>
-              <p className="text-purple-200/80 text-sm">
-                Rankings completos com estatísticas detalhadas por rating.
-              </p>
-            </div>
-          </Link>
-
           <Link href="/search" className="group">
             <div className="bg-gradient-to-br from-blue-500/20 to-cyan-500/20 border border-blue-500/30 rounded-xl p-6 hover:border-blue-400/50 transition-all duration-300 group-hover:scale-105">
               <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">🔍</div>
               <h3 className="text-xl font-bold text-blue-300 mb-2">Busca Avançada</h3>
               <p className="text-blue-200/80 text-sm">
                 Explore jogadores por tier, divisão e outras características.
-              </p>
-            </div>
-          </Link>
-
-          <Link href="/analytics" className="group">
-            <div className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-green-500/30 rounded-xl p-6 hover:border-green-400/50 transition-all duration-300 group-hover:scale-105">
-              <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">📈</div>
-              <h3 className="text-xl font-bold text-green-300 mb-2">Analytics</h3>
-              <p className="text-green-200/80 text-sm">
-                Análises estatísticas avançadas e insights sobre o meta.
               </p>
             </div>
           </Link>

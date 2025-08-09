@@ -18,7 +18,6 @@ export default function LeaguesPage() {
 
   const handlePlayerClick = (entry: LeagueEntry) => {
     toast.info('Jogador selecionado', `Perfil de ${entry.summonerName}`)
-    // TODO: Navigate to player profile page
   }
 
   const getFilteredPlayers = () => {

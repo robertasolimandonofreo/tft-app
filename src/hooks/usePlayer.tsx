@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { summonerApi, leagueApi, healthApi } from '../services/api'
 import { toast } from '../store/toastStore'
-import type { Tier, Division, Queue, HighTierLeague, LeagueEntry, RatedLadderEntry } from '../types'
+import type { Tier, Division, Queue, HighTierLeague, LeagueEntry } from '../types'
 
 interface ApiError {
   response?: {
@@ -139,33 +139,6 @@ export function useLeagueByPUUID(puuid: string) {
   })
 }
 
-export function useRatedLadder(queue: Queue) {
-  return useQuery({
-    queryKey: ['league', 'rated-ladder', queue],
-    queryFn: async () => {
-      const { data } = await leagueApi.getRatedLadder(queue)
-      
-      const entries = data.entries || []
-      const stats = {
-        totalPlayers: entries.length,
-        averageRating: entries.length > 0 
-          ? Math.round(entries.reduce((sum: number, e: RatedLadderEntry) => sum + (e.ratedRating || 0), 0) / entries.length)
-          : 0,
-        maxRating: entries.length > 0 
-          ? Math.max(...entries.map((e: RatedLadderEntry) => e.ratedRating || 0))
-          : 0,
-        averageWins: entries.length > 0
-          ? Math.round(entries.reduce((sum: number, e: RatedLadderEntry) => sum + (e.wins || 0), 0) / entries.length)
-          : 0
-      }
-      
-      return { ...data, stats }
-    },
-    enabled: !!queue,
-    staleTime: 60 * 60 * 1000,
-    ...queryDefaults,
-  })
-}
 
 export function useBatchSummoners(puuids: string[]) {
   return useQuery({

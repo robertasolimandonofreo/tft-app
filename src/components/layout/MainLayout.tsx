@@ -36,22 +36,10 @@ export function MainLayout({
                   🏆 High Tier Leagues
                 </Link>
                 <Link 
-                  href="/ranked" 
-                  className="px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-lg transition-colors"
-                >
-                  📊 Ranked Ladder
-                </Link>
-                <Link 
                   href="/search" 
                   className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-lg transition-colors"
                 >
                   🔍 Advanced Search
-                </Link>
-                <Link 
-                  href="/analytics" 
-                  className="px-6 py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors"
-                >
-                  📈 Analytics
                 </Link>
               </div>
             </nav>

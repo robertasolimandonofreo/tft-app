@@ -30,8 +30,6 @@ export const leagueApi = {
     api.get(`/league/entries?tier=${tier}&division=${division}&page=${page}`),
   getByPUUID: (puuid: string) => 
     api.get(`/league/by-puuid?puuid=${puuid}`),
-  getRatedLadder: (queue: string) => 
-    api.get(`/league/rated-ladder?queue=${queue}`),
 }
 
 // Health check

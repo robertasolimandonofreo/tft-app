@@ -50,22 +50,6 @@ export interface Summoner {
     hasMore: boolean
   }
   
-  export interface RatedLadderEntry {
-    summonerId: string
-    summonerName: string
-    ratedTier: string
-    ratedRating: number
-    leaguePoints: number
-    wins: number
-    previousUpdate: number
-  }
-  
-  export interface RatedLadder {
-    queue: string
-    tier: string
-    entries: RatedLadderEntry[]
-  }
-  
   // UI types
   export interface ApiError {
     message: string
