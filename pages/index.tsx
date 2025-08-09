@@ -140,7 +140,7 @@ export default function Home() {
                 <div className="flex gap-3">
                   <input
                     type="text"
-                    placeholder="Nome do jogador (ex: Doja Scat Cat)"
+                    placeholder="Nome do jogador"
                     value={gameName}
                     onChange={(e) => setGameName(e.target.value)}
                     onKeyPress={(e) => {
@@ -246,20 +246,6 @@ export default function Home() {
                         </span>
                       </div>
                     </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-green-300">ID:</span>
-                        <span className="text-white font-mono text-xs">
-                          {playerData ? playerData.summoner?.id?.slice(0, 8) : resultData.id?.slice(0, 8) || 'N/A'}...
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-green-300">PUUID:</span>
-                        <span className="text-white font-mono text-xs">
-                          {(playerData?.puuid || puuid)?.slice(0, 8)}...
-                        </span>
-                      </div>
-                    </div>
                   </div>
                   
                   <div className="flex gap-3 justify-center">
@@ -285,7 +271,6 @@ export default function Home() {
               <p>💡 <strong>Dicas de busca:</strong></p>
               <div className="text-xs space-y-1">
                 <p>• Use o nome exato como aparece no jogo</p>
-                <p>• Para "Doja Scat Cat", certifique-se da tag correta</p>
                 <p>• Tente diferentes tags: BR1, BR2, etc.</p>
               </div>
             </div>
