@@ -1,40 +1,39 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { MainLayout } from '../src/components/layout/MainLayout'
-import { useSearchPlayer, useHealthCheck } from '../src/hooks/usePlayer'
+import { useSummoner, useHealthCheck, useSearchPlayer } from '../src/hooks/usePlayer'
 
 export default function Home() {
+  const [puuid, setPuuid] = useState('')
+  const [input, setInput] = useState('')
   const [gameName, setGameName] = useState('')
-  const [tagLine, setTagLine] = useState('')
-  const [searchTrigger, setSearchTrigger] = useState('')
+  const [tagLine, setTagLine] = useState('BR1')
+  const [searchMode, setSearchMode] = useState<'puuid' | 'name'>('name')
   
   const { data: healthData, error: healthError } = useHealthCheck()
-  const { data: playerData, isLoading, error } = useSearchPlayer(
-    searchTrigger, 
-    tagLine || undefined
+  const { data: summonerData, isLoading: summonerLoading, error: summonerError } = useSummoner(puuid)
+  const { data: playerData, isLoading: playerLoading, error: playerError } = useSearchPlayer(
+    searchMode === 'name' ? gameName : '',
+    searchMode === 'name' ? tagLine : undefined
   )
 
-  const handleSearch = () => {
+  const handlePuuidSearch = () => {
+    if (input.trim()) {
+      setPuuid(input.trim())
+      setGameName('')
+    }
+  }
+
+  const handleNameSearch = () => {
     if (gameName.trim()) {
-      setSearchTrigger(gameName.trim())
+      setPuuid('')
+      // A busca é automática via useSearchPlayer
     }
   }
 
-  const parseNameInput = (input: string) => {
-    // Se contém #, dividir em gameName e tagLine
-    if (input.includes('#')) {
-      const [name, tag] = input.split('#')
-      return { gameName: name.trim(), tagLine: tag.trim() }
-    }
-    // Senão, usar o input como gameName
-    return { gameName: input.trim(), tagLine: '' }
-  }
-
-  const handleInputChange = (input: string) => {
-    const { gameName: parsedName, tagLine: parsedTag } = parseNameInput(input)
-    setGameName(parsedName)
-    setTagLine(parsedTag)
-  }
+  const isLoading = summonerLoading || playerLoading
+  const error = summonerError || playerError
+  const resultData = summonerData || playerData
 
   return (
     <MainLayout showNavigation={false}>
@@ -68,7 +67,7 @@ export default function Home() {
           <Link href="/leagues" className="group">
             <div className="bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 rounded-xl p-6 hover:border-yellow-400/50 transition-all duration-300 group-hover:scale-105">
               <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">🏆</div>
-              <h3 className="text-xl font-bold text-yellow-300 mb-2">TOP 10 High Tier</h3>
+              <h3 className="text-xl font-bold text-yellow-300 mb-2">High Tier Leagues</h3>
               <p className="text-yellow-200/80 text-sm">
                 Challenger, Grandmaster e Master. Os melhores jogadores do servidor.
               </p>
@@ -93,24 +92,79 @@ export default function Home() {
               🎮 Busca Rápida de Jogador
             </h2>
             
-            <div className="space-y-4">
-              <div className="flex gap-3">
-                <input
-                  type="text"
-                  placeholder="Digite o nome do jogador (ex: NomeJogador#BR1)"
-                  value={`${gameName}${tagLine ? '#' + tagLine : ''}`}
-                  onChange={(e) => handleInputChange(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
-                  className="flex-1 px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                />
-                <button 
-                  onClick={handleSearch}
-                  disabled={!gameName.trim()}
-                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors"
+            {/* Search Mode Toggle */}
+            <div className="flex justify-center mb-6">
+              <div className="flex bg-white/10 rounded-lg p-1">
+                <button
+                  onClick={() => setSearchMode('name')}
+                  className={`px-4 py-2 rounded-lg transition-colors ${
+                    searchMode === 'name'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-white/70 hover:text-white'
+                  }`}
                 >
-                  Buscar
+                  Por Nome
+                </button>
+                <button
+                  onClick={() => setSearchMode('puuid')}
+                  className={`px-4 py-2 rounded-lg transition-colors ${
+                    searchMode === 'puuid'
+                      ? 'bg-blue-600 text-white'
+                      : 'text-white/70 hover:text-white'
+                  }`}
+                >
+                  Por PUUID
                 </button>
               </div>
+            </div>
+            
+            <div className="space-y-4">
+              {searchMode === 'name' ? (
+                /* Search by Name */
+                <div className="flex gap-3">
+                  <input
+                    type="text"
+                    placeholder="Nome do jogador (ex: NomeJogador)"
+                    value={gameName}
+                    onChange={(e) => setGameName(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handleNameSearch()}
+                    className="flex-1 px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Tag (BR1)"
+                    value={tagLine}
+                    onChange={(e) => setTagLine(e.target.value)}
+                    className="w-24 px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <button 
+                    onClick={handleNameSearch}
+                    disabled={!gameName.trim()}
+                    className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors"
+                  >
+                    Buscar
+                  </button>
+                </div>
+              ) : (
+                /* Search by PUUID */
+                <div className="flex gap-3">
+                  <input
+                    type="text"
+                    placeholder="Digite o PUUID do jogador"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && handlePuuidSearch()}
+                    className="flex-1 px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  />
+                  <button 
+                    onClick={handlePuuidSearch}
+                    disabled={!input.trim()}
+                    className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors"
+                  >
+                    Buscar
+                  </button>
+                </div>
+              )}
 
               {/* Loading State */}
               {isLoading && (
@@ -124,13 +178,13 @@ export default function Home() {
               {error && (
                 <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4">
                   <p className="text-red-300 text-center">
-                    ❌ Jogador não encontrado. Verifique o nome e tente novamente.
+                    ❌ Jogador não encontrado. Verifique os dados e tente novamente.
                   </p>
                 </div>
               )}
 
               {/* Success State */}
-              {playerData && (
+              {resultData && (
                 <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-6">
                   <h3 className="text-lg font-bold text-white mb-4 text-center">
                     ✅ Jogador Encontrado
@@ -140,13 +194,13 @@ export default function Home() {
                       <div className="flex justify-between">
                         <span className="text-green-300">Nome:</span>
                         <span className="text-white font-semibold">
-                          {playerData.gameName}#{playerData.tagLine}
+                          {playerData ? `${playerData.gameName}#${playerData.tagLine}` : resultData.name || 'N/A'}
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-green-300">Level:</span>
                         <span className="text-white font-semibold">
-                          {playerData.summoner?.summonerLevel || 'N/A'}
+                          {playerData ? playerData.summoner?.summonerLevel : resultData.summonerLevel || 'N/A'}
                         </span>
                       </div>
                     </div>
@@ -154,13 +208,13 @@ export default function Home() {
                       <div className="flex justify-between">
                         <span className="text-green-300">ID:</span>
                         <span className="text-white font-mono text-xs">
-                          {playerData.summoner?.id?.slice(0, 8) || 'N/A'}...
+                          {playerData ? playerData.summoner?.id?.slice(0, 8) : resultData.id?.slice(0, 8) || 'N/A'}...
                         </span>
                       </div>
                       <div className="flex justify-between">
                         <span className="text-green-300">PUUID:</span>
                         <span className="text-white font-mono text-xs">
-                          {playerData.puuid?.slice(0, 8)}...
+                          {(playerData?.puuid || puuid)?.slice(0, 8)}...
                         </span>
                       </div>
                     </div>
@@ -168,13 +222,13 @@ export default function Home() {
                   
                   <div className="flex gap-3 justify-center">
                     <Link 
-                      href={`/player/${playerData.puuid}`}
+                      href={`/player/${playerData?.puuid || puuid}`}
                       className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
                     >
                       Ver Perfil Completo
                     </Link>
                     <Link 
-                      href={`/player/${playerData.puuid}/matches`}
+                      href={`/player/${playerData?.puuid || puuid}/matches`}
                       className="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors"
                     >
                       Ver Partidas
@@ -185,16 +239,8 @@ export default function Home() {
             </div>
 
             {/* Help Text */}
-            <div className="mt-6 text-center text-white/60 text-sm space-y-2">
-              <p>
-                💡 Digite o nome no formato <strong>NomeJogador#TagLine</strong>
-              </p>
-              <p>
-                Exemplos: <code className="bg-white/10 px-2 py-1 rounded">RYT Shaco#12345</code> ou <code className="bg-white/10 px-2 py-1 rounded">Toddy#tft</code>
-              </p>
-              <p className="text-yellow-300">
-                Se não souber a TagLine, deixe apenas o nome (será usado #BR1 por padrão)
-              </p>
+            <div className="mt-6 text-center text-white/60 text-sm">
+              💡 Busque por nome e tag (ex: Jogador#BR1) ou use o PUUID para busca direta.
             </div>
           </div>
         </div>
