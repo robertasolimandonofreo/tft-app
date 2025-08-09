@@ -63,7 +63,7 @@ export default function Home() {
         </div>
 
         {/* Navigation Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
           <Link href="/leagues" className="group">
             <div className="bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 rounded-xl p-6 hover:border-yellow-400/50 transition-all duration-300 group-hover:scale-105">
               <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">🏆</div>
@@ -241,7 +241,7 @@ export default function Home() {
           <h2 className="text-3xl font-bold text-white mb-8">
             ⚡ Recursos Principais
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-4">
               <div className="text-4xl">🚀</div>
               <h3 className="text-xl font-bold text-white">Dados em Tempo Real</h3>
