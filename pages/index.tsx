@@ -12,28 +12,48 @@ export default function Home() {
   
   const { data: healthData, error: healthError } = useHealthCheck()
   const { data: summonerData, isLoading: summonerLoading, error: summonerError } = useSummoner(puuid)
+  
+  // Trigger search only when explicitly requested
+  const [shouldSearch, setShouldSearch] = useState(false)
+  const [searchKey, setSearchKey] = useState('')
+  
   const { data: playerData, isLoading: playerLoading, error: playerError } = useSearchPlayer(
-    searchMode === 'name' ? gameName : '',
-    searchMode === 'name' ? tagLine : undefined
+    shouldSearch && searchMode === 'name' ? gameName.trim() : '',
+    shouldSearch && searchMode === 'name' ? tagLine.trim() : undefined
   )
 
   const handlePuuidSearch = () => {
     if (input.trim()) {
       setPuuid(input.trim())
       setGameName('')
+      setShouldSearch(false)
     }
   }
 
   const handleNameSearch = () => {
     if (gameName.trim()) {
       setPuuid('')
-      // A busca é automática via useSearchPlayer
+      setShouldSearch(true)
+      setSearchKey(`${gameName.trim()}-${tagLine.trim()}-${Date.now()}`)
+      console.log('🔍 Iniciando busca:', {
+        gameName: gameName.trim(),
+        tagLine: tagLine.trim(),
+        searchKey
+      })
     }
   }
 
-  const isLoading = summonerLoading || playerLoading
-  const error = summonerError || playerError
-  const resultData = summonerData || playerData
+  const clearSearch = () => {
+    setPuuid('')
+    setGameName('')
+    setInput('')
+    setShouldSearch(false)
+    setSearchKey('')
+  }
+
+  const isLoading = summonerLoading || (playerLoading && shouldSearch)
+  const error = summonerError || (shouldSearch ? playerError : null)
+  const resultData = summonerData || (shouldSearch ? playerData : null)
 
   return (
     <MainLayout showNavigation={false}>
@@ -73,7 +93,6 @@ export default function Home() {
               </p>
             </div>
           </Link>
-
         </div>
 
         {/* Quick Search */}
@@ -87,7 +106,10 @@ export default function Home() {
             <div className="flex justify-center mb-6">
               <div className="flex bg-white/10 rounded-lg p-1">
                 <button
-                  onClick={() => setSearchMode('name')}
+                  onClick={() => {
+                    setSearchMode('name')
+                    clearSearch()
+                  }}
                   className={`px-4 py-2 rounded-lg transition-colors ${
                     searchMode === 'name'
                       ? 'bg-blue-600 text-white'
@@ -97,7 +119,10 @@ export default function Home() {
                   Por Nome
                 </button>
                 <button
-                  onClick={() => setSearchMode('puuid')}
+                  onClick={() => {
+                    setSearchMode('puuid')
+                    clearSearch()
+                  }}
                   className={`px-4 py-2 rounded-lg transition-colors ${
                     searchMode === 'puuid'
                       ? 'bg-blue-600 text-white'
@@ -115,10 +140,14 @@ export default function Home() {
                 <div className="flex gap-3">
                   <input
                     type="text"
-                    placeholder="Nome do jogador (ex: NomeJogador)"
+                    placeholder="Nome do jogador (ex: Doja Scat Cat)"
                     value={gameName}
                     onChange={(e) => setGameName(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleNameSearch()}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' && gameName.trim()) {
+                        handleNameSearch()
+                      }
+                    }}
                     className="flex-1 px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                   <input
@@ -126,14 +155,19 @@ export default function Home() {
                     placeholder="Tag (BR1)"
                     value={tagLine}
                     onChange={(e) => setTagLine(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' && gameName.trim()) {
+                        handleNameSearch()
+                      }
+                    }}
                     className="w-24 px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                   <button 
                     onClick={handleNameSearch}
-                    disabled={!gameName.trim()}
+                    disabled={!gameName.trim() || isLoading}
                     className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors"
                   >
-                    Buscar
+                    {isLoading ? 'Buscando...' : 'Buscar'}
                   </button>
                 </div>
               ) : (
@@ -144,15 +178,19 @@ export default function Home() {
                     placeholder="Digite o PUUID do jogador"
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handlePuuidSearch()}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' && input.trim()) {
+                        handlePuuidSearch()
+                      }
+                    }}
                     className="flex-1 px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                   <button 
                     onClick={handlePuuidSearch}
-                    disabled={!input.trim()}
+                    disabled={!input.trim() || isLoading}
                     className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors"
                   >
-                    Buscar
+                    {isLoading ? 'Buscando...' : 'Buscar'}
                   </button>
                 </div>
               )}
@@ -161,21 +199,34 @@ export default function Home() {
               {isLoading && (
                 <div className="text-center py-6">
                   <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-400 mx-auto mb-3"></div>
-                  <p className="text-white/80">Buscando jogador...</p>
+                  <p className="text-white/80">
+                    Buscando jogador {gameName && `"${gameName}#${tagLine}"`}...
+                  </p>
                 </div>
               )}
 
               {/* Error State */}
               {error && (
                 <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4">
-                  <p className="text-red-300 text-center">
-                    ❌ Jogador não encontrado. Verifique os dados e tente novamente.
+                  <p className="text-red-300 text-center mb-3">
+                    ❌ Jogador "{gameName}#{tagLine}" não encontrado.
                   </p>
+                  <div className="text-red-400 text-sm space-y-1">
+                    <p>• Verifique se o nome está correto (case-sensitive)</p>
+                    <p>• Certifique-se que a tag está correta (BR1, BR2, etc.)</p>
+                    <p>• Tente sem espaços extras no início ou fim</p>
+                  </div>
+                  <button
+                    onClick={clearSearch}
+                    className="mt-3 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors w-full"
+                  >
+                    Limpar e tentar novamente
+                  </button>
                 </div>
               )}
 
               {/* Success State */}
-              {resultData && (
+              {resultData && !isLoading && (
                 <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-6">
                   <h3 className="text-lg font-bold text-white mb-4 text-center">
                     ✅ Jogador Encontrado
@@ -230,8 +281,13 @@ export default function Home() {
             </div>
 
             {/* Help Text */}
-            <div className="mt-6 text-center text-white/60 text-sm">
-              💡 Busque por nome e tag (ex: Jogador#BR1) ou use o PUUID para busca direta.
+            <div className="mt-6 text-center text-white/60 text-sm space-y-2">
+              <p>💡 <strong>Dicas de busca:</strong></p>
+              <div className="text-xs space-y-1">
+                <p>• Use o nome exato como aparece no jogo</p>
+                <p>• Para "Doja Scat Cat", certifique-se da tag correta</p>
+                <p>• Tente diferentes tags: BR1, BR2, etc.</p>
+              </div>
             </div>
           </div>
         </div>

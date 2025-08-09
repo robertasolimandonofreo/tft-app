@@ -222,22 +222,63 @@ export function useLeagueByPUUID(puuid: string) {
 
 export function useSearchPlayer(gameName: string, tagLine?: string) {
   return useQuery({
-    queryKey: ['search', 'player', gameName, tagLine],
+    queryKey: ['search', 'player', gameName, tagLine || 'BR1'],
     queryFn: async () => {
-      console.log('🔍 Buscando jogador:', { gameName, tagLine })
-      const params = new URLSearchParams({ gameName })
-      if (tagLine) params.append('tagLine', tagLine)
+      if (!gameName || gameName.trim().length < 2) {
+        throw new Error('Nome do jogador deve ter pelo menos 2 caracteres')
+      }
+
+      const cleanGameName = gameName.trim()
+      const cleanTagLine = (tagLine || 'BR1').trim()
       
-      const { data } = await api.get(`/search/player?${params.toString()}`)
+      console.log('🔍 Buscando jogador:', { 
+        originalGameName: gameName,
+        cleanGameName,
+        originalTagLine: tagLine,
+        cleanTagLine,
+        url: `/search/player?gameName=${encodeURIComponent(cleanGameName)}&tagLine=${encodeURIComponent(cleanTagLine)}`
+      })
       
-      console.log('✅ Jogador encontrado:', data)
-      toast.success('Jogador encontrado', `${data.gameName}#${data.tagLine}`)
-      
-      return data
+      try {
+        const response = await api.get('/search/player', {
+          params: {
+            gameName: cleanGameName,
+            tagLine: cleanTagLine
+          }
+        })
+        
+        console.log('✅ Jogador encontrado:', response.data)
+        toast.success('Jogador encontrado', `${response.data.gameName}#${response.data.tagLine}`)
+        
+        return response.data
+      } catch (error: any) {
+        console.error('❌ Erro na busca:', {
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          data: error.response?.data,
+          gameName: cleanGameName,
+          tagLine: cleanTagLine
+        })
+        
+        if (error.response?.status === 404) {
+          toast.error('Jogador não encontrado', `"${cleanGameName}#${cleanTagLine}" não existe ou está em outra região`)
+        } else if (error.response?.status === 429) {
+          toast.warning('Muitas requisições', 'Aguarde um momento antes de tentar novamente')
+        } else {
+          toast.error('Erro na busca', 'Tente novamente em alguns segundos')
+        }
+        
+        throw error
+      }
     },
-    enabled: !!gameName && gameName.length > 2,
+    enabled: !!gameName && gameName.trim().length >= 2,
     staleTime: 5 * 60 * 1000,
-    ...queryDefaults,
+    retry: (failureCount, error) => {
+      if (isApiError(error) && error.response?.status === 404) return false
+      if (isApiError(error) && error.response?.status === 429) return false
+      return failureCount < 1
+    },
+    retryDelay: 2000,
   })
 }
 
