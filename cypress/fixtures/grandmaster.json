@@ -1,0 +1,25 @@
+{
+    "data": {
+      "entries": [
+        {
+          "summonerName": "GrandmasterPlayer1",
+          "tier": "GRANDMASTER",
+          "rank": "I",
+          "leaguePoints": 1200,
+          "wins": 85,
+          "losses": 35,
+          "puuid": "grandmaster-1"
+        },
+        {
+          "summonerName": "GrandmasterPlayer2",
+          "tier": "GRANDMASTER",
+          "rank": "I",
+          "leaguePoints": 1100,
+          "wins": 80,
+          "losses": 40,
+          "puuid": "grandmaster-2"
+        }
+      ],
+      "tier": "GRANDMASTER"
+    }
+  }

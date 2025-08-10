@@ -1,0 +1,26 @@
+{
+    "data": {
+      "puuid": "test-puuid-123",
+      "gameName": "TestPlayer",
+      "tagLine": "BR1",
+      "account": {
+        "puuid": "test-puuid-123",
+        "gameName": "TestPlayer",
+        "tagLine": "BR1"
+      },
+      "summoner": {
+        "id": "summoner-123",
+        "puuid": "test-puuid-123",
+        "name": "TestPlayer"
+      },
+      "league": {
+        "tier": "CHALLENGER",
+        "rank": "I",
+        "leaguePoints": 1000,
+        "wins": 50,
+        "losses": 10,
+        "queueType": "RANKED_TFT"
+      }
+    }
+  }
+  

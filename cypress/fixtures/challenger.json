@@ -1,0 +1,34 @@
+{
+    "data": {
+      "entries": [
+        {
+          "summonerName": "ChallengerPlayer1",
+          "tier": "CHALLENGER",
+          "rank": "I",
+          "leaguePoints": 1500,
+          "wins": 100,
+          "losses": 20,
+          "puuid": "challenger-1"
+        },
+        {
+          "summonerName": "ChallengerPlayer2",
+          "tier": "CHALLENGER",
+          "rank": "I",
+          "leaguePoints": 1400,
+          "wins": 95,
+          "losses": 25,
+          "puuid": "challenger-2"
+        },
+        {
+          "summonerName": "ChallengerPlayer3",
+          "tier": "CHALLENGER",
+          "rank": "I",
+          "leaguePoints": 1300,
+          "wins": 90,
+          "losses": 30,
+          "puuid": "challenger-3"
+        }
+      ],
+      "tier": "CHALLENGER"
+    }
+  }

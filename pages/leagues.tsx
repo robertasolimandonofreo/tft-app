@@ -67,11 +67,11 @@ export default function Leagues() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
+      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900" data-cy="leagues-loading">
         <div className="container mx-auto px-4 py-8">
           <div className="text-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <p className="text-white/80">Carregando rankings...</p>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4" data-cy="loading-spinner"></div>
+            <p className="text-white/80" data-cy="loading-text">Carregando rankings...</p>
           </div>
         </div>
       </div>
@@ -80,12 +80,12 @@ export default function Leagues() {
 
   if (hasError) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
+      <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900" data-cy="leagues-error">
         <div className="container mx-auto px-4 py-8">
           <div className="text-center py-12">
             <div className="text-2xl mb-4">❌</div>
-            <h3 className="text-xl font-bold text-red-300 mb-2">Erro ao carregar</h3>
-            <p className="text-red-400">Não foi possível carregar os rankings</p>
+            <h3 className="text-xl font-bold text-red-300 mb-2" data-cy="error-title">Erro ao carregar</h3>
+            <p className="text-red-400" data-cy="error-message">Não foi possível carregar os rankings</p>
           </div>
         </div>
       </div>
@@ -93,42 +93,42 @@ export default function Leagues() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900" data-cy="leagues-page">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         
         <div className="mb-6">
-          <Link href="/" className="text-blue-300 hover:text-blue-200">
+          <Link href="/" className="text-blue-300 hover:text-blue-200" data-cy="back-home-link">
             ← Voltar ao início
           </Link>
         </div>
 
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-white mb-4">
+        <div className="text-center mb-8" data-cy="leagues-header">
+          <h1 className="text-4xl font-bold text-white mb-4" data-cy="leagues-title">
             🏆 TOP 10 High Tier Leagues
           </h1>
-          <p className="text-blue-200">
+          <p className="text-blue-200" data-cy="leagues-description">
             Os 10 melhores jogadores de cada tier
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8" data-cy="stats-cards">
+          <div className="bg-blue-500/10 border border-blue-500/30 rounded-xl p-4" data-cy="stats-total">
             <h3 className="font-semibold text-white text-sm mb-2">Total Players</h3>
             <div className="text-2xl font-bold text-blue-400">{allPlayers.length}</div>
           </div>
-          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4">
+          <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4" data-cy="stats-challenger">
             <h3 className="font-semibold text-white text-sm mb-2">Challenger</h3>
             <div className="text-2xl font-bold text-yellow-400">
               {challenger.data?.data.entries?.slice(0, 10).length || 0}
             </div>
           </div>
-          <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4">
+          <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4" data-cy="stats-grandmaster">
             <h3 className="font-semibold text-white text-sm mb-2">Grandmaster</h3>
             <div className="text-2xl font-bold text-red-400">
               {grandmaster.data?.data.entries?.slice(0, 10).length || 0}
             </div>
           </div>
-          <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4">
+          <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4" data-cy="stats-master">
             <h3 className="font-semibold text-white text-sm mb-2">Master</h3>
             <div className="text-2xl font-bold text-purple-400">
               {master.data?.data.entries?.slice(0, 10).length || 0}
@@ -136,9 +136,9 @@ export default function Leagues() {
           </div>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 mb-8">
+        <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20 mb-8" data-cy="filters-section">
           <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2" data-cy="tier-filters">
               {[
                 { key: 'all' as const, label: 'Todos' },
                 { key: 'challenger' as const, label: 'Challenger' },
@@ -153,6 +153,7 @@ export default function Leagues() {
                       ? 'bg-blue-600 text-white'
                       : 'bg-white/20 text-white/80 hover:bg-white/30'
                   }`}
+                  data-cy={`filter-${key}`}
                 >
                   {label}
                 </button>
@@ -165,51 +166,56 @@ export default function Leagues() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="px-4 py-2 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              data-cy="search-player-input"
             />
           </div>
         </div>
 
-        <div className="bg-white/10 backdrop-blur-lg rounded-xl overflow-hidden border border-white/20">
+        <div className="bg-white/10 backdrop-blur-lg rounded-xl overflow-hidden border border-white/20" data-cy="rankings-table">
           <div className="bg-black/30 px-6 py-4">
-            <h3 className="text-xl font-bold text-white">
+            <h3 className="text-xl font-bold text-white" data-cy="rankings-table-title">
               🏆 TOP {filteredPlayers.length} Players
             </h3>
           </div>
           
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full" data-cy="rankings-table-content">
               <thead className="bg-black/30">
                 <tr className="text-left">
-                  <th className="px-6 py-4 text-blue-300 font-semibold">Rank</th>
-                  <th className="px-6 py-4 text-blue-300 font-semibold">Jogador</th>
-                  <th className="px-6 py-4 text-blue-300 font-semibold">Tier</th>
-                  <th className="px-6 py-4 text-blue-300 font-semibold">LP</th>
-                  <th className="px-6 py-4 text-blue-300 font-semibold">W/L</th>
-                  <th className="px-6 py-4 text-blue-300 font-semibold">WR%</th>
+                  <th className="px-6 py-4 text-blue-300 font-semibold" data-cy="header-rank">Rank</th>
+                  <th className="px-6 py-4 text-blue-300 font-semibold" data-cy="header-player">Jogador</th>
+                  <th className="px-6 py-4 text-blue-300 font-semibold" data-cy="header-tier">Tier</th>
+                  <th className="px-6 py-4 text-blue-300 font-semibold" data-cy="header-lp">LP</th>
+                  <th className="px-6 py-4 text-blue-300 font-semibold" data-cy="header-wl">W/L</th>
+                  <th className="px-6 py-4 text-blue-300 font-semibold" data-cy="header-wr">WR%</th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody data-cy="rankings-table-body">
                 {filteredPlayers.map((entry, index) => {
                   const winRate = calculateWinrate(entry.wins, entry.losses)
                   const position = index + 1
                   const positionEmoji = position === 1 ? '🥇' : position === 2 ? '🥈' : position === 3 ? '🥉' : '🏆'
                   
                   return (
-                    <tr key={entry.summonerId || index} className="border-b border-white/10 hover:bg-white/5">
-                      <td className="px-6 py-4">
+                    <tr 
+                      key={entry.summonerId || index} 
+                      className="border-b border-white/10 hover:bg-white/5"
+                      data-cy={`player-row-${index}`}
+                    >
+                      <td className="px-6 py-4" data-cy={`player-position-${index}`}>
                         <div className="flex items-center gap-2">
                           <span className="text-xl">{positionEmoji}</span>
                           <span className="font-bold text-purple-400">#{position}</span>
                         </div>
                       </td>
                       
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4" data-cy={`player-name-${index}`}>
                         <div className="text-white font-semibold">
                           {entry.summonerName || 'Carregando...'}
                         </div>
                       </td>
                       
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4" data-cy={`player-tier-${index}`}>
                         <div className="flex items-center gap-2">
                           <span className="text-xl">{getTierIcon(entry.tier)}</span>
                           <span className={`font-semibold ${getTierColor(entry.tier)}`}>
@@ -218,19 +224,19 @@ export default function Leagues() {
                         </div>
                       </td>
                       
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4" data-cy={`player-lp-${index}`}>
                         <span className="text-yellow-400 font-bold">
                           {entry.leaguePoints.toLocaleString()}
                         </span>
                       </td>
                       
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4" data-cy={`player-wl-${index}`}>
                         <span className="text-green-400 font-semibold">{entry.wins}</span>
                         <span className="text-gray-400 mx-1">/</span>
                         <span className="text-red-400 font-semibold">{entry.losses}</span>
                       </td>
                       
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4" data-cy={`player-winrate-${index}`}>
                         <span className={`font-semibold ${getWinrateColor(winRate)}`}>
                           {winRate}%
                         </span>
@@ -243,7 +249,7 @@ export default function Leagues() {
           </div>
         </div>
 
-        <div className="text-center text-white/70 text-sm mt-8">
+        <div className="text-center text-white/70 text-sm mt-8" data-cy="results-summary">
           Exibindo TOP {filteredPlayers.length} de {allPlayers.length} jogadores
         </div>
       </div>

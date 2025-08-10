@@ -1,0 +1,25 @@
+{
+    "data": {
+      "entries": [
+        {
+          "summonerName": "MasterPlayer1",
+          "tier": "MASTER",
+          "rank": "I",
+          "leaguePoints": 1000,
+          "wins": 75,
+          "losses": 45,
+          "puuid": "master-1"
+        },
+        {
+          "summonerName": "MasterPlayer2",
+          "tier": "MASTER",
+          "rank": "I",
+          "leaguePoints": 950,
+          "wins": 70,
+          "losses": 50,
+          "puuid": "master-2"
+        }
+      ],
+      "tier": "MASTER"
+    }
+}

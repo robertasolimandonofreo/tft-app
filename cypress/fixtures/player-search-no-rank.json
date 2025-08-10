@@ -1,0 +1,19 @@
+{
+    "data": {
+      "puuid": "test-puuid-456",
+      "gameName": "UnrankedPlayer",
+      "tagLine": "BR1",
+      "account": {
+        "puuid": "test-puuid-456",
+        "gameName": "UnrankedPlayer",
+        "tagLine": "BR1"
+      },
+      "summoner": {
+        "id": "summoner-456",
+        "puuid": "test-puuid-456",
+        "name": "UnrankedPlayer"
+      },
+      "league": null
+    }
+  }
+  
