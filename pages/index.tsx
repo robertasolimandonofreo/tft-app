@@ -1,334 +1,182 @@
 import { useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
 import Link from 'next/link'
-import { MainLayout } from '../src/components/layout/MainLayout'
-import { useSummoner, useHealthCheck, useSearchPlayer } from '../src/hooks/usePlayer'
+import { searchPlayer, checkHealth } from '../src/api'
+import { calculateWinrate, getWinrateColor } from '../src/utils'
 
 export default function Home() {
-  const [puuid, setPuuid] = useState('')
-  const [input, setInput] = useState('')
   const [gameName, setGameName] = useState('')
   const [tagLine, setTagLine] = useState('BR1')
-  const [searchMode] = useState<'puuid' | 'name'>('name')
-  
-  const { error: healthError } = useHealthCheck()
-  const { data: summonerData, isLoading: summonerLoading, error: summonerError } = useSummoner(puuid)
-  
   const [shouldSearch, setShouldSearch] = useState(false)
-  const [searchKey, setSearchKey] = useState('')
-  
-  const { data: playerData, isLoading: playerLoading, error: playerError } = useSearchPlayer(
-    shouldSearch && searchMode === 'name' ? gameName.trim() : '',
-    shouldSearch && searchMode === 'name' ? tagLine.trim() : undefined
-  )
 
-  const handlePuuidSearch = () => {
-    if (input.trim()) {
-      setPuuid(input.trim())
-      setGameName('')
-      setShouldSearch(false)
-    }
-  }
+  const { data: healthData } = useQuery({
+    queryKey: ['health'],
+    queryFn: checkHealth,
+    refetchInterval: 30000,
+  })
 
-  const handleNameSearch = () => {
-    if (gameName.trim()) {
-      setPuuid('')
+  const { data: playerData, isLoading, error } = useQuery({
+    queryKey: ['search', gameName, tagLine],
+    queryFn: () => searchPlayer(gameName, tagLine),
+    enabled: shouldSearch && gameName.length >= 2,
+    retry: false,
+  })
+
+  const handleSearch = () => {
+    if (gameName.trim().length >= 2) {
       setShouldSearch(true)
-      setSearchKey(`${gameName.trim()}-${tagLine.trim()}-${Date.now()}`)
-      console.log('🔍 Iniciando busca:', {
-        gameName: gameName.trim(),
-        tagLine: tagLine.trim(),
-        searchKey
-      })
     }
   }
 
-  const clearSearch = () => {
-    setPuuid('')
+  const handleClear = () => {
     setGameName('')
-    setInput('')
     setShouldSearch(false)
-    setSearchKey('')
-  }
-
-  const isLoading = summonerLoading || (playerLoading && shouldSearch)
-  const error = summonerError || (shouldSearch ? playerError : null)
-  const resultData = summonerData || (shouldSearch ? playerData : null)
-
-  const calculateWinrate = (wins: number, losses: number): number => {
-    const total = wins + losses
-    return total > 0 ? Math.round((wins / total) * 100) : 0
   }
 
   return (
-    <MainLayout showNavigation={false}>
-      <div className="space-y-12">
-        <div className="text-center space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-purple-900 to-indigo-900">
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        
+        <div className="text-center space-y-6 mb-12">
           <h1 className="text-6xl font-bold text-white mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
             TFT Stats Brasil
           </h1>
-          <p className="text-xl text-blue-200 max-w-2xl mx-auto leading-relaxed">
-            A plataforma para análise de dados do Teamfight Tactics no Brasil. 
-            Acompanhe rankings e análises dos melhores jogadores.
+          <p className="text-xl text-blue-200 leading-relaxed">
+            Acompanhe rankings e análises dos melhores jogadores do TFT Brasil
           </p>
           
-          <div className="flex justify-center">
-            {healthError ? (
-              <span className="inline-flex items-center px-4 py-2 rounded-full text-sm bg-red-500/20 text-red-400 border border-red-500/30">
-                🔴 API Offline - Alguns dados podem estar desatualizados
+          <div className="inline-flex items-center px-4 py-2 rounded-full text-sm border">
+            {healthData ? (
+              <span className="bg-green-500/20 text-green-400 border-green-500/30">
+                🟢 API Online
               </span>
             ) : (
-              <span className="inline-flex items-center px-4 py-2 rounded-full text-sm bg-green-500/20 text-green-400 border border-green-500/30">
-                🟢 API Online - Dados em tempo real
+              <span className="bg-red-500/20 text-red-400 border-red-500/30">
+                🔴 API Offline
               </span>
             )}
           </div>
         </div>
 
-        <div className="flex justify-center">
-          <Link href="/leagues" className="group max-w-md w-full">
+        <div className="mb-12">
+          <Link href="/leagues" className="group block max-w-md mx-auto">
             <div className="bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 rounded-xl p-6 hover:border-yellow-400/50 transition-all duration-300 group-hover:scale-105">
               <div className="text-4xl mb-4 group-hover:scale-110 transition-transform">🏆</div>
               <h3 className="text-xl font-bold text-yellow-300 mb-2">High Tier Leagues</h3>
               <p className="text-yellow-200/80 text-sm">
-                Challenger, Grandmaster e Master. Os melhores jogadores do servidor.
+                Os melhores jogadores: Challenger, Grandmaster e Master
               </p>
             </div>
           </Link>
         </div>
 
-        <div className="max-w-2xl mx-auto">
-          <div className="bg-white/10 backdrop-blur-lg rounded-xl p-8 border border-white/20">
-            <h2 className="text-2xl font-bold text-white mb-6 text-center">
-              🎮 Busca Rápida de Jogador
-            </h2>
+        <div className="bg-white/10 backdrop-blur-lg rounded-xl p-8 border border-white/20">
+          <h2 className="text-2xl font-bold text-white mb-6 text-center">
+            🎮 Busca de Jogador
+          </h2>
 
-            <div className="space-y-4">
-              {searchMode === 'name' ? (
-                <div className="flex gap-3">
-                  <input
-                    type="text"
-                    placeholder="Nome do jogador"
-                    value={gameName}
-                    onChange={(e) => setGameName(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter' && gameName.trim()) {
-                        handleNameSearch()
-                      }
-                    }}
-                    className="flex-1 px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                  <input
-                    type="text"
-                    placeholder="Tag (BR1)"
-                    value={tagLine}
-                    onChange={(e) => setTagLine(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter' && gameName.trim()) {
-                        handleNameSearch()
-                      }
-                    }}
-                    className="w-24 px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                  <button 
-                    onClick={handleNameSearch}
-                    disabled={!gameName.trim() || isLoading}
-                    className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors"
-                  >
-                    {isLoading ? 'Buscando...' : 'Buscar'}
-                  </button>
+          <div className="flex gap-3 mb-4">
+            <input
+              type="text"
+              placeholder="Nome do jogador"
+              value={gameName}
+              onChange={(e) => setGameName(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+              className="flex-1 px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <input
+              type="text"
+              placeholder="BR1"
+              value={tagLine}
+              onChange={(e) => setTagLine(e.target.value)}
+              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+              className="w-24 px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button 
+              onClick={handleSearch}
+              disabled={gameName.length < 2 || isLoading}
+              className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 text-white font-semibold rounded-lg transition-colors"
+            >
+              {isLoading ? 'Buscando...' : 'Buscar'}
+            </button>
+          </div>
+
+          {error && (
+            <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4 mb-4">
+              <p className="text-red-300 text-center">
+                ❌ Jogador não encontrado: "{gameName}#{tagLine}"
+              </p>
+              <button
+                onClick={handleClear}
+                className="mt-3 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg w-full"
+              >
+                Tentar novamente
+              </button>
+            </div>
+          )}
+
+          {playerData?.data && (
+            <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-6">
+              <h3 className="text-lg font-bold text-white mb-4 text-center">
+                ✅ {playerData.data.gameName}#{playerData.data.tagLine}
+              </h3>
+              
+              {playerData.data.league ? (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+                    <div>
+                      <div className="text-green-300 text-xs">Tier</div>
+                      <div className="text-white font-bold">
+                        {playerData.data.league.tier} {playerData.data.league.rank || ''}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-green-300 text-xs">LP</div>
+                      <div className="text-yellow-400 font-bold">
+                        {playerData.data.league.leaguePoints}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-green-300 text-xs">Vitórias</div>
+                      <div className="text-green-400 font-bold">
+                        {playerData.data.league.wins}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="text-green-300 text-xs">Derrotas</div>
+                      <div className="text-red-400 font-bold">
+                        {playerData.data.league.losses}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="text-center">
+                    {(() => {
+                      const winrate = calculateWinrate(
+                        playerData.data.league.wins, 
+                        playerData.data.league.losses
+                      )
+                      return (
+                        <div className={`text-2xl font-bold ${getWinrateColor(winrate)}`}>
+                          {winrate}% Winrate
+                        </div>
+                      )
+                    })()}
+                  </div>
                 </div>
               ) : (
-                <div className="flex gap-3">
-                  <input
-                    type="text"
-                    placeholder="Digite o PUUID do jogador"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    onKeyPress={(e) => {
-                      if (e.key === 'Enter' && input.trim()) {
-                        handlePuuidSearch()
-                      }
-                    }}
-                    className="flex-1 px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  />
-                  <button 
-                    onClick={handlePuuidSearch}
-                    disabled={!input.trim() || isLoading}
-                    className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-semibold rounded-lg transition-colors"
-                  >
-                    {isLoading ? 'Buscando...' : 'Buscar'}
-                  </button>
-                </div>
-              )}
-
-              {isLoading && (
-                <div className="text-center py-6">
-                  <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-400 mx-auto mb-3"></div>
-                  <p className="text-white/80">
-                    Buscando jogador {gameName && `"${gameName}#${tagLine}"`}...
-                  </p>
-                </div>
-              )}
-
-              {error && (
-                <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4">
-                  <p className="text-red-300 text-center mb-3">
-                    ❌ Jogador "{gameName}#{tagLine}" não encontrado.
-                  </p>
-                  <div className="text-red-400 text-sm space-y-1">
-                    <p>• Verifique se o nome está correto (case-sensitive)</p>
-                    <p>• Certifique-se que a tag está correta (BR1, BR2, etc.)</p>
-                    <p>• Tente sem espaços extras no início ou fim</p>
-                  </div>
-                  <button
-                    onClick={clearSearch}
-                    className="mt-3 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors w-full"
-                  >
-                    Limpar e tentar novamente
-                  </button>
-                </div>
-              )}
-
-              {resultData && !isLoading && (
-                <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-6">
-                  <h3 className="text-lg font-bold text-white mb-4 text-center">
-                    ✅ Jogador Encontrado
-                  </h3>
-                  
-
-                  {playerData?.league && (
-                    <div className="border-t border-green-500/30 pt-4 mb-6">
-                      <h4 className="text-white font-semibold mb-3 text-center">
-                        🏆 Rank TFT Atual
-                      </h4>
-                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                        <div className="text-center">
-                          <div className="text-green-300 text-xs">Tier</div>
-                          <div className="text-white font-bold">
-                            {playerData.league.tier} {playerData.league.rank || ''}
-                          </div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-green-300 text-xs">LP</div>
-                          <div className="text-yellow-400 font-bold">
-                            {playerData.league.leaguePoints.toLocaleString()}
-                          </div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-green-300 text-xs">Vitórias</div>
-                          <div className="text-green-400 font-bold">
-                            {playerData.league.wins}
-                          </div>
-                        </div>
-                        <div className="text-center">
-                          <div className="text-green-300 text-xs">Derrotas</div>
-                          <div className="text-red-400 font-bold">
-                            {playerData.league.losses}
-                          </div>
-                        </div>
-                      </div>
-                        
-                      <div className="mt-4 text-center">
-                        <div className="text-green-300 text-xs mb-1">Taxa de Vitória</div>
-                        {(() => {
-                          const winrate = calculateWinrate(playerData.league.wins, playerData.league.losses)
-                          return (
-                            <div className={`text-2xl font-bold ${
-                              winrate >= 70 ? 'text-green-400' :
-                              winrate >= 60 ? 'text-yellow-400' :
-                              winrate >= 50 ? 'text-orange-400' : 'text-red-400'
-                            }`}>
-                              {winrate}%
-                            </div>
-                          )
-                        })()}
-                        <div className="text-gray-400 text-xs">
-                          {playerData.league.wins + playerData.league.losses} partidas jogadas
-                        </div>
-                      </div>
-
-                      {(playerData.league.hotStreak || playerData.league.veteran || 
-                        playerData.league.freshBlood || playerData.league.inactive) && (
-                        <div className="mt-4 flex flex-wrap justify-center gap-2">
-                          {playerData.league.hotStreak && (
-                            <span className="px-3 py-1 bg-red-500/20 text-red-400 rounded-full text-xs font-medium">
-                              🔥 Hot Streak
-                            </span>
-                          )}
-                          {playerData.league.veteran && (
-                            <span className="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full text-xs font-medium">
-                              ⭐ Veteran
-                            </span>
-                          )}
-                          {playerData.league.freshBlood && (
-                            <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-medium">
-                              🆕 Fresh Blood
-                            </span>
-                          )}
-                          {playerData.league.inactive && (
-                            <span className="px-3 py-1 bg-gray-500/20 text-gray-400 rounded-full text-xs font-medium">
-                              💤 Inativo
-                            </span>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {playerData && !playerData.league && (
-                    <div className="border-t border-green-500/30 pt-4 mb-6 text-center">
-                      <div className="text-yellow-400 text-sm">
-                        📋 Dados de rank não disponíveis
-                      </div>
-                      <div className="text-gray-400 text-xs mt-1">
-                        Jogador ainda não jogou TFT ranqueado esta temporada
-                      </div>
-                    </div>
-                  )}
-                
+                <div className="text-center text-yellow-400">
+                  📋 Sem dados de rank disponíveis
                 </div>
               )}
             </div>
-
-            <div className="mt-6 text-center text-white/60 text-sm space-y-2">
-              <p>💡 <strong>Dicas de busca:</strong></p>
-              <div className="text-xs space-y-1">
-                <p>• Use o nome exato como aparece no jogo</p>
-                <p>• Tente diferentes tags: BR1, BR2, etc.</p>
-              </div>
-            </div>
-          </div>
+          )}
         </div>
 
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-white mb-8">
-            ⚡ Recursos Principais
-          </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-4">
-              <div className="text-4xl">🚀</div>
-              <h3 className="text-xl font-bold text-white">Dados em Tempo Real</h3>
-              <p className="text-white/70">
-                Informações atualizadas diretamente da API oficial da Riot Games
-              </p>
-            </div>
-            <div className="space-y-4">
-              <div className="text-4xl">🎯</div>
-              <h3 className="text-xl font-bold text-white">Foco no Brasil</h3>
-              <p className="text-white/70">
-                Especializado no servidor brasileiro com dados regionais específicos
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="text-center text-white/60 text-sm border-t border-white/10 pt-8">
-          <p>
-            🎮 TFT Stats Brasil não é afiliado à Riot Games • 
-            Dados fornecidos pela API oficial do League of Legends
-          </p>
+        <div className="text-center text-white/60 text-sm mt-8">
+          🎮 TFT Stats Brasil não é afiliado à Riot Games
         </div>
       </div>
-    </MainLayout>
+    </div>
   )
 }
