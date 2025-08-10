@@ -8,9 +8,9 @@ export default function Home() {
   const [input, setInput] = useState('')
   const [gameName, setGameName] = useState('')
   const [tagLine, setTagLine] = useState('BR1')
-  const [searchMode, setSearchMode] = useState<'puuid' | 'name'>('name')
+  const [searchMode] = useState<'puuid' | 'name'>('name')
   
-  const { data: healthData, error: healthError } = useHealthCheck()
+  const { error: healthError } = useHealthCheck()
   const { data: summonerData, isLoading: summonerLoading, error: summonerError } = useSummoner(puuid)
   
   const [shouldSearch, setShouldSearch] = useState(false)

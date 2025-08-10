@@ -8,7 +8,6 @@ export interface Summoner {
   summonerLevel: number
 }
 
-// League types
 export interface MiniSeries {
   target: number
   wins: number
@@ -18,9 +17,9 @@ export interface MiniSeries {
 
 export interface LeagueEntry {
   leagueId?: string
-  summonerId?: string        // Manter por compatibilidade
-  puuid?: string            // Adicionar PUUID
-  summonerName?: string     // Pode vir vazio e ser preenchido
+  summonerId?: string
+  puuid?: string
+  summonerName?: string
   queueType?: string
   tier: string
   rank?: string
@@ -50,7 +49,6 @@ export interface LeagueEntriesResponse {
   hasMore: boolean
 }
 
-// UI types
 export interface ApiError {
   message: string
   status?: number
@@ -58,7 +56,6 @@ export interface ApiError {
 
 export type LoadingState = 'idle' | 'loading' | 'success' | 'error'
 
-// Constants
 export const TIERS = [
   'IRON', 'BRONZE', 'SILVER', 'GOLD', 
   'PLATINUM', 'EMERALD', 'DIAMOND'
