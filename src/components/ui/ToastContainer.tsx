@@ -79,7 +79,7 @@ export function useToastStore() {
 
   useEffect(() => {
     const unsubscribe = toast.subscribe(setToasts)
-    setToasts(toast.getToasts()) // Initialize with current toasts
+    setToasts(toast.getToasts())
     return unsubscribe
   }, [])
 
