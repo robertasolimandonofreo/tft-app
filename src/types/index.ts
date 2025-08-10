@@ -64,6 +64,22 @@ export const TIERS = [
   'PLATINUM', 'EMERALD', 'DIAMOND'
 ] as const
 
+export interface PlayerSearchResult {
+  account: {
+    puuid: string
+    gameName: string
+    tagLine: string
+  }
+  summoner?: {
+    id: string
+    summonerLevel: number
+    profileIconId: number
+  }
+  league?: LeagueEntry
+  puuid: string
+  gameName: string
+  tagLine: string
+}
 export const DIVISIONS = ['IV', 'III', 'II', 'I'] as const
 
 export const QUEUES = ['RANKED_TFT'] as const

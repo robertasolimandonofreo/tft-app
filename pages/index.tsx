@@ -54,6 +54,12 @@ export default function Home() {
   const error = summonerError || (shouldSearch ? playerError : null)
   const resultData = summonerData || (shouldSearch ? playerData : null)
 
+  // Função para calcular winrate
+  const calculateWinrate = (wins: number, losses: number): number => {
+    const total = wins + losses
+    return total > 0 ? Math.round((wins / total) * 100) : 0
+  }
+
   return (
     <MainLayout showNavigation={false}>
       <div className="space-y-12">
@@ -101,7 +107,6 @@ export default function Home() {
               🎮 Busca Rápida de Jogador
             </h2>
 
-            
             <div className="space-y-4">
               {searchMode === 'name' ? (
                 /* Search by Name */
@@ -199,6 +204,8 @@ export default function Home() {
                   <h3 className="text-lg font-bold text-white mb-4 text-center">
                     ✅ Jogador Encontrado
                   </h3>
+                  
+                  {/* Informações Básicas */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm mb-6">
                     <div className="space-y-2">
                       <div className="flex justify-between">
@@ -215,7 +222,101 @@ export default function Home() {
                       </div>
                     </div>
                   </div>
-              
+
+                  {/* Informações de Rank TFT */}
+                  {playerData?.league && (
+                    <div className="border-t border-green-500/30 pt-4 mb-6">
+                      <h4 className="text-white font-semibold mb-3 text-center">
+                        🏆 Rank TFT Atual
+                      </h4>
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div className="text-center">
+                          <div className="text-green-300 text-xs">Tier</div>
+                          <div className="text-white font-bold">
+                            {playerData.league.tier} {playerData.league.rank || ''}
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-green-300 text-xs">LP</div>
+                          <div className="text-yellow-400 font-bold">
+                            {playerData.league.leaguePoints.toLocaleString()}
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-green-300 text-xs">Vitórias</div>
+                          <div className="text-green-400 font-bold">
+                            {playerData.league.wins}
+                          </div>
+                        </div>
+                        <div className="text-center">
+                          <div className="text-green-300 text-xs">Derrotas</div>
+                          <div className="text-red-400 font-bold">
+                            {playerData.league.losses}
+                          </div>
+                        </div>
+                      </div>
+                        
+                      {/* Winrate */}
+                      <div className="mt-4 text-center">
+                        <div className="text-green-300 text-xs mb-1">Taxa de Vitória</div>
+                        {(() => {
+                          const winrate = calculateWinrate(playerData.league.wins, playerData.league.losses)
+                          return (
+                            <div className={`text-2xl font-bold ${
+                              winrate >= 70 ? 'text-green-400' :
+                              winrate >= 60 ? 'text-yellow-400' :
+                              winrate >= 50 ? 'text-orange-400' : 'text-red-400'
+                            }`}>
+                              {winrate}%
+                            </div>
+                          )
+                        })()}
+                        <div className="text-gray-400 text-xs">
+                          {playerData.league.wins + playerData.league.losses} partidas jogadas
+                        </div>
+                      </div>
+
+                      {/* Status Badges */}
+                      {(playerData.league.hotStreak || playerData.league.veteran || 
+                        playerData.league.freshBlood || playerData.league.inactive) && (
+                        <div className="mt-4 flex flex-wrap justify-center gap-2">
+                          {playerData.league.hotStreak && (
+                            <span className="px-3 py-1 bg-red-500/20 text-red-400 rounded-full text-xs font-medium">
+                              🔥 Hot Streak
+                            </span>
+                          )}
+                          {playerData.league.veteran && (
+                            <span className="px-3 py-1 bg-purple-500/20 text-purple-400 rounded-full text-xs font-medium">
+                              ⭐ Veteran
+                            </span>
+                          )}
+                          {playerData.league.freshBlood && (
+                            <span className="px-3 py-1 bg-green-500/20 text-green-400 rounded-full text-xs font-medium">
+                              🆕 Fresh Blood
+                            </span>
+                          )}
+                          {playerData.league.inactive && (
+                            <span className="px-3 py-1 bg-gray-500/20 text-gray-400 rounded-full text-xs font-medium">
+                              💤 Inativo
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Caso não tenha dados de rank */}
+                  {playerData && !playerData.league && (
+                    <div className="border-t border-green-500/30 pt-4 mb-6 text-center">
+                      <div className="text-yellow-400 text-sm">
+                        📋 Dados de rank não disponíveis
+                      </div>
+                      <div className="text-gray-400 text-xs mt-1">
+                        Jogador ainda não jogou TFT ranqueado esta temporada
+                      </div>
+                    </div>
+                  )}
+                
                 </div>
               )}
             </div>

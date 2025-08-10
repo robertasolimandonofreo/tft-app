@@ -107,3 +107,29 @@ export function formatTierRank(tier: string, rank?: string): string {
   }
   return `${tier} ${rank}`
 }
+export function getTierDisplayName(tier: string, rank?: string): string {
+  const tierNames: Record<string, string> = {
+    'IRON': 'Ferro',
+    'BRONZE': 'Bronze', 
+    'SILVER': 'Prata',
+    'GOLD': 'Ouro',
+    'PLATINUM': 'Platina',
+    'EMERALD': 'Esmeralda',
+    'DIAMOND': 'Diamante',
+    'MASTER': 'Mestre',
+    'GRANDMASTER': 'Grão-Mestre',
+    'CHALLENGER': 'Desafiante'
+  }
+  
+  const displayName = tierNames[tier] || tier
+  return rank && !['MASTER', 'GRANDMASTER', 'CHALLENGER'].includes(tier) 
+    ? `${displayName} ${rank}` 
+    : displayName
+}
+
+export function getWinrateColor(winrate: number): string {
+  if (winrate >= 70) return 'text-green-400'
+  if (winrate >= 60) return 'text-yellow-400'
+  if (winrate >= 50) return 'text-orange-400'
+  return 'text-red-400'
+}

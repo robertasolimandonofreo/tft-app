@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { summonerApi, leagueApi, healthApi, api } from '../services/api'
 import { toast } from '../store/toastStore'
-import type { Tier, Division, Queue, HighTierLeague, LeagueEntry } from '../types'
+import type { Tier, Division, HighTierLeague, PlayerSearchResult } from '../types'
 
 interface ApiError {
   response?: {
@@ -207,19 +207,6 @@ export function useLeagueEntries(tier: Tier, division: Division, page = 1) {
   })
 }
 
-export function useLeagueByPUUID(puuid: string) {
-  return useQuery({
-    queryKey: ['league', 'by-puuid', puuid],
-    queryFn: async () => {
-      const { data } = await leagueApi.getByPUUID(puuid)
-      return data as LeagueEntry[]
-    },
-    enabled: !!puuid && puuid.length > 20,
-    staleTime: 60 * 60 * 1000,
-    ...queryDefaults,
-  })
-}
-
 export function useSearchPlayer(gameName: string, tagLine?: string) {
   return useQuery({
     queryKey: ['search', 'player', gameName, tagLine || 'BR1'],
@@ -248,9 +235,18 @@ export function useSearchPlayer(gameName: string, tagLine?: string) {
         })
         
         console.log('✅ Jogador encontrado:', response.data)
+        
+        // Calcular winrate se tiver dados da league
+        if (response.data.league) {
+          const { wins, losses } = response.data.league
+          const total = wins + losses
+          const winrate = total > 0 ? ((wins / total) * 100).toFixed(1) : '0.0'
+          response.data.league.winrate = parseFloat(winrate)
+        }
+        
         toast.success('Jogador encontrado', `${response.data.gameName}#${response.data.tagLine}`)
         
-        return response.data
+        return response.data as PlayerSearchResult
       } catch (error: any) {
         console.error('❌ Erro na busca:', {
           status: error.response?.status,
