@@ -91,7 +91,7 @@ export default function LeaguesPage() {
       players = players.filter(player =>
         player.summonerName && player.summonerName.toLowerCase().includes(searchTerm.toLowerCase())
       )
-      console.log(`🔍 Filtro "${searchTerm}": ${originalCount} → ${players.length}`)
+      console.log(`🔍 Filtro &ldquo;${searchTerm}&rdquo;: ${originalCount} → ${players.length}`)
     }
 
     const sortedPlayers = players.sort(compareRanks)
@@ -245,7 +245,7 @@ export default function LeaguesPage() {
                   TOP {filteredPlayers.length} Players
                   {searchTerm && (
                     <span className="text-yellow-300 text-sm ml-2">
-                      (filtrado: "{searchTerm}")
+                      (filtrado: &ldquo;{searchTerm}&rdquo;)
                     </span>
                   )}
                 </h3>
@@ -418,7 +418,7 @@ export default function LeaguesPage() {
                             {searchTerm ? (
                               <div className="space-y-2">
                                 <div className="text-2xl">🔍</div>
-                                <div>Nenhum TOP player encontrado para "{searchTerm}"</div>
+                                <div>Nenhum TOP player encontrado para &ldquo;{searchTerm}&rdquo;</div>
                                 <button
                                   onClick={() => setSearchTerm('')}
                                   className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors"

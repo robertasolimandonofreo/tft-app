@@ -69,13 +69,13 @@ export function useHighTierLeagues() {
       console.log('📊 Dados Challenger recebidos:', {
         total: data.entries?.length,
         firstEntry: data.entries?.[0],
-        hasNames: data.entries?.filter((e: any) => e.summonerName && e.summonerName !== '').length
+        hasNames: data.entries?.filter((e: LeagueEntryData) => e.summonerName && e.summonerName !== '').length
       })
       
       const processedData = { 
         ...data, 
         tier: 'CHALLENGER',
-        entries: data.entries?.map((entry: any) => ({
+        entries: data.entries?.map((entry: LeagueEntryData) => ({
           ...entry,
           summonerName: entry.summonerName || 'Carregando...'
         })) || []
@@ -97,13 +97,13 @@ export function useHighTierLeagues() {
       console.log('📊 Dados Grandmaster recebidos:', {
         total: data.entries?.length,
         firstEntry: data.entries?.[0],
-        hasNames: data.entries?.filter((e: any) => e.summonerName && e.summonerName !== '').length
+        hasNames: data.entries?.filter((e: LeagueEntryData) => e.summonerName && e.summonerName !== '').length
       })
       
       const processedData = { 
         ...data, 
         tier: 'GRANDMASTER',
-        entries: data.entries?.map((entry: any) => ({
+        entries: data.entries?.map((entry: LeagueEntryData) => ({
           ...entry,
           summonerName: entry.summonerName || 'Carregando...'
         })) || []
@@ -125,13 +125,13 @@ export function useHighTierLeagues() {
       console.log('📊 Dados Master recebidos:', {
         total: data.entries?.length,
         firstEntry: data.entries?.[0],
-        hasNames: data.entries?.filter((e: any) => e.summonerName && e.summonerName !== '').length
+        hasNames: data.entries?.filter((e: LeagueEntryData) => e.summonerName && e.summonerName !== '').length
       })
       
       const processedData = { 
         ...data, 
         tier: 'MASTER',
-        entries: data.entries?.map((entry: any) => ({
+        entries: data.entries?.map((entry: LeagueEntryData) => ({
           ...entry,
           summonerName: entry.summonerName || 'Carregando...'
         })) || []
@@ -247,18 +247,18 @@ export function useSearchPlayer(gameName: string, tagLine?: string) {
         toast.success('Jogador encontrado', `${response.data.gameName}#${response.data.tagLine}`)
         
         return response.data as PlayerSearchResult
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('❌ Erro na busca:', {
-          status: error.response?.status,
-          statusText: error.response?.statusText,
-          data: error.response?.data,
+          status: isApiError(error) ? error.response?.status : 'unknown',
+          statusText: isApiError(error) && error.response ? 'error' : 'unknown',
+          data: isApiError(error) && error.response ? 'error data' : 'no data',
           gameName: cleanGameName,
           tagLine: cleanTagLine
         })
         
-        if (error.response?.status === 404) {
+        if (isApiError(error) && error.response?.status === 404) {
           toast.error('Jogador não encontrado', `"${cleanGameName}#${cleanTagLine}" não existe ou está em outra região`)
-        } else if (error.response?.status === 429) {
+        } else if (isApiError(error) && error.response?.status === 429) {
           toast.warning('Muitas requisições', 'Aguarde um momento antes de tentar novamente')
         } else {
           toast.error('Erro na busca', 'Tente novamente em alguns segundos')
@@ -297,4 +297,9 @@ export function useBatchSummoners(puuids: string[]) {
     staleTime: 30 * 60 * 1000,
     ...queryDefaults,
   })
+}
+
+interface LeagueEntryData {
+  summonerName?: string
+  [key: string]: unknown
 }
