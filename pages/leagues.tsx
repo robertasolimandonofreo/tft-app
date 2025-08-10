@@ -60,12 +60,12 @@ export default function LeaguesPage() {
   }, [data, isLoading, hasError])
 
   const handlePlayerClick = (entry: LeagueEntry) => {
-    console.log('🎮 Player clicked:', entry)
+    console.log('Player clicked:', entry)
     toast.info('Jogador selecionado', `Perfil de ${entry.summonerName}`)
   }
 
   const getFilteredPlayers = () => {
-    console.log('🔍 Filtrando TOP 10 players, tier ativo:', activeTier)
+    console.log('Filtering TOP 10 players, active tier:', activeTier)
     
     if (!data.challenger || !data.grandmaster || !data.master) {
       console.log('❌ Dados não disponíveis ainda')
@@ -95,7 +95,7 @@ export default function LeaguesPage() {
     }
 
     const sortedPlayers = players.sort(compareRanks)
-    console.log('✅ TOP players finais ordenados:', sortedPlayers.length)
+    console.log('Final TOP players sorted:', sortedPlayers.length)
     
     console.log('👥 TOP 5 players com tiers:', sortedPlayers.slice(0, 5).map(p => ({
       summonerName: p.summonerName,
@@ -129,7 +129,7 @@ export default function LeaguesPage() {
       topLP: allPlayers.length > 0 ? Math.max(...allPlayers.map(p => p.leaguePoints)) : 0
     }
 
-    console.log('📈 Stats TOP calculadas:', stats)
+    console.log('Calculated TOP stats:', stats)
     return stats
   }
 
@@ -138,7 +138,6 @@ export default function LeaguesPage() {
   return (
     <MainLayout title="TOP 10 High Tier Leagues" showBackButton>
       <div className="space-y-8">
-        {/* Header */}
         <div className="text-center">
           <h1 className="text-4xl font-bold text-white mb-4">
             🏆 TOP 10 High Tier Leagues
@@ -148,12 +147,10 @@ export default function LeaguesPage() {
           </p>
         </div>
 
-        {/* Loading State */}
         {isLoading && (
           <LoadingSpinner size="lg" text="Carregando TOP 10 rankings..." />
         )}
 
-        {/* Error State */}
         {Boolean(hasError) && (
           <ErrorMessage
             title="Erro ao carregar TOP 10"
@@ -162,10 +159,8 @@ export default function LeaguesPage() {
           />
         )}
 
-        {/* Content */}
         {!isLoading && !Boolean(hasError) && stats && (
           <>
-            {/* Stats Overview */}
             <div>
               <h2 className="text-2xl font-bold text-white mb-6">
                 📊 Visão Geral TOP 10
@@ -202,10 +197,8 @@ export default function LeaguesPage() {
               </StatsGrid>
             </div>
 
-            {/* Controls */}
             <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6 border border-white/20">
               <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-                {/* Tier Filter */}
                 <div className="flex flex-wrap gap-2">
                   {[
                     { key: 'all' as const, label: 'TOP 30 (Todos)', count: stats.total },
@@ -227,7 +220,6 @@ export default function LeaguesPage() {
                   ))}
                 </div>
 
-                {/* Search */}
                 <div className="flex gap-3">
                   <input
                     type="text"
@@ -246,7 +238,6 @@ export default function LeaguesPage() {
               </div>
             </div>
 
-            {/* Players Table */}
             <div className="bg-white/10 backdrop-blur-lg rounded-xl overflow-hidden border border-white/20">
               <div className="bg-black/30 px-6 py-4">
                 <h3 className="text-xl font-bold text-white flex items-center gap-2">
@@ -318,7 +309,7 @@ export default function LeaguesPage() {
 
                         const rankDisplay = getRankDisplay(index)
 
-                        console.log(`🎮 Renderizando TOP entry ${index + 1}:`, {
+                        console.log(`Rendering TOP entry ${index + 1}:`, {
                           summonerName: entry.summonerName,
                           tier: entry.tier,
                           tierName: getTierName(entry.tier),
@@ -450,7 +441,6 @@ export default function LeaguesPage() {
               </div>
             </div>
 
-            {/* Footer Info */}
             <div className="bg-white/5 rounded-xl p-6 text-center border border-white/10">
               <div className="space-y-2 text-white/70">
                 <div className="text-lg font-semibold text-white">

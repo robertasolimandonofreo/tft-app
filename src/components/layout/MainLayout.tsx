@@ -15,7 +15,7 @@ export function MainLayout({
   title = 'TFT Stats', 
   showBackButton = false,
   showNavigation = true,
-  description = 'Estatísticas completas do Teamfight Tactics'
+  description = 'Estatísticas do Teamfight Tactics no Brasil'
 }: MainLayoutProps) {
   return (
     <>
