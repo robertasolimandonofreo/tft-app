@@ -7,7 +7,7 @@ import { calculateWinrate, getWinrateColor } from '../src/utils'
 export default function Home() {
   const [gameName, setGameName] = useState('')
   const [tagLine, setTagLine] = useState('BR1')
-  const [shouldSearch, setShouldSearch] = useState(false)
+  const [searchKey, setSearchKey] = useState<string | null>(null)
 
   const { data: healthData } = useQuery({
     queryKey: ['health'],
@@ -15,22 +15,34 @@ export default function Home() {
     refetchInterval: 30000,
   })
 
-  const { data: playerData, isLoading, error } = useQuery({
-    queryKey: ['search', gameName, tagLine],
-    queryFn: () => searchPlayer(gameName, tagLine),
-    enabled: shouldSearch && gameName.length >= 2,
+  const { data: playerData, isLoading, error, refetch } = useQuery({
+    queryKey: ['search', searchKey],
+    queryFn: () => {
+      if (!searchKey) return null
+      const [name, tag] = searchKey.split('#')
+      return searchPlayer(name, tag)
+    },
+    enabled: !!searchKey,
     retry: false,
   })
 
   const handleSearch = () => {
     if (gameName.trim().length >= 2) {
-      setShouldSearch(true)
+      const searchString = `${gameName.trim()}#${tagLine.trim()}`
+      setSearchKey(searchString)
     }
   }
 
   const handleClear = () => {
     setGameName('')
-    setShouldSearch(false)
+    setTagLine('BR1')
+    setSearchKey(null)
+  }
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch()
+    }
   }
 
   return (
@@ -84,7 +96,7 @@ export default function Home() {
               placeholder="Nome do jogador"
               value={gameName}
               onChange={(e) => setGameName(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+              onKeyPress={handleKeyPress}
               className="flex-1 px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500"
               data-cy="search-input-gamename"
             />
@@ -93,7 +105,7 @@ export default function Home() {
               placeholder="BR1"
               value={tagLine}
               onChange={(e) => setTagLine(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
+              onKeyPress={handleKeyPress}
               className="w-24 px-4 py-3 bg-white/20 border border-white/30 rounded-lg text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-blue-500"
               data-cy="search-input-tagline"
             />

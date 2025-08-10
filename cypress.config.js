@@ -6,6 +6,11 @@ module.exports = defineConfig({
     setupNodeEvents(on, config) {
       // Implement node event listeners here
     },
+    defaultCommandTimeout: 10000,
+    requestTimeout: 10000,
+    responseTimeout: 10000,
+    viewportWidth: 1280,
+    viewportHeight: 720,
   },
   component: {
     devServer: {
