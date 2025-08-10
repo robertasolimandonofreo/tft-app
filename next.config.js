@@ -12,6 +12,13 @@ const nextConfig = {
   experimental: {
     optimizeCss: true,
   },
+  eslint: {
+    ignoreDuringBuilds: false,
+    dirs: ['pages', 'src'],
+  },
+  typescript: {
+    ignoreBuildErrors: false,
+  },
 }
 
 module.exports = nextConfig

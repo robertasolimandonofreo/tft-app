@@ -1,7 +1,7 @@
 {
-  "name": "tft-frontend",
+  "name": "tft-app",
   "version": "1.0.0",
-  "private": true,
+  "private": false,
   "scripts": {
     "dev": "next dev --port 9000",
     "build": "next build",
