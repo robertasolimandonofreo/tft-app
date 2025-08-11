@@ -6,10 +6,12 @@
     "dev": "next dev --port 9000",
     "build": "next build",
     "start": "next start -p 9000",
-    "lint": "next lint"
+    "lint": "npx eslint . eslint.config.js",
+    "test": "cypress run",
+    "test:report": "cypress run --reporter mocha-junit-reporter --reporter-options mochaFile=coverage/test-[hash].xml"
   },
   "dependencies": {
-    "@tanstack/react-query": "^5.84.1",
+    "@tanstack/react-query": "^5.84.2",
     "autoprefixer": "^10.4.21",
     "axios": "^1.11.0",
     "critters": "^0.0.23",
@@ -20,12 +22,25 @@
     "tailwindcss": "^3.4.17"
   },
   "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^19",
+    "@babel/preset-env": "^7.28.0",
+    "@babel/preset-react": "^7.27.1",
+    "@babel/preset-typescript": "^7.27.1",
+    "@cypress/code-coverage": "^3.14.5",
+    "@types/node": "^20.19.10",
+    "@types/react": "^19.1.9",
     "@types/react-dom": "^19",
+    "babel-plugin-istanbul": "^7.0.0",
     "cypress": "^14.5.4",
-    "eslint": "^9",
+    "cypress-multi-reporters": "^2.0.5",
+    "eslint": "^8.44.0",
     "eslint-config-next": "15.4.6",
-    "typescript": "^5"
+    "@typescript-eslint/parser": "^5.61.0",
+    "@typescript-eslint/eslint-plugin": "^5.61.0",
+    "mocha-junit-reporter": "^2.2.1",
+    "mochawesome": "^7.1.3",
+    "mochawesome-merge": "^4.4.1",
+    "mochawesome-report-generator": "^6.2.0",
+    "nyc": "^17.1.0",
+    "typescript": "^5.9.2"
   }
 }

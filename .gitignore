@@ -9,7 +9,9 @@ package-lock.json
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
-/coverage
+/coverage/*
+#!/coverage/lcov.info
+#!/coverage/test*
 /out/
 /build
 .DS_Store
@@ -22,3 +24,6 @@ yarn-error.log*
 .vercel
 *.tsbuildinfo
 next-env.d.ts
+screenshots/
+results/
+.nyc_output/
