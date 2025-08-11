@@ -15,7 +15,7 @@ export default function Home() {
     refetchInterval: 30000,
   })
 
-  const { data: playerData, isLoading, error, refetch } = useQuery({
+  const { data: playerData, isLoading, error } = useQuery({
     queryKey: ['search', searchKey],
     queryFn: () => {
       if (!searchKey) return null
