@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { fetchChallenger, fetchGrandmaster, fetchMaster } from '../src/api'
 import { getTierColor, getTierIcon, calculateWinrate, getWinrateColor, sortByRank } from '../src/utils'
@@ -8,39 +7,53 @@ import { LeagueEntry } from '../src/types'
 export default function Leagues() {
   const [searchTerm, setSearchTerm] = useState('')
   const [activeTier, setActiveTier] = useState<'all' | 'challenger' | 'grandmaster' | 'master'>('all')
+  const [challengerData, setChallengerData] = useState<any>(null)
+  const [grandmasterData, setGrandmasterData] = useState<any>(null)
+  const [masterData, setMasterData] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [hasError, setHasError] = useState(false)
 
-  const challenger = useQuery({
-    queryKey: ['challenger'],
-    queryFn: fetchChallenger,
-    staleTime: 30 * 60 * 1000,
-  })
+  useEffect(() => {
+    const fetchData = async () => {
+      setIsLoading(true)
+      setHasError(false)
 
-  const grandmaster = useQuery({
-    queryKey: ['grandmaster'], 
-    queryFn: fetchGrandmaster,
-    staleTime: 30 * 60 * 1000,
-  })
+      try {
+        const [challengerResponse, grandmasterResponse, masterResponse] = await Promise.all([
+          fetchChallenger().catch(() => null),
+          fetchGrandmaster().catch(() => null), 
+          fetchMaster().catch(() => null)
+        ])
 
-  const master = useQuery({
-    queryKey: ['master'],
-    queryFn: fetchMaster,
-    staleTime: 30 * 60 * 1000,
-  })
+        setChallengerData(challengerResponse)
+        setGrandmasterData(grandmasterResponse)
+        setMasterData(masterResponse)
 
-  const isLoading = challenger.isLoading || grandmaster.isLoading || master.isLoading
-  const hasError = challenger.error || grandmaster.error || master.error
+        if (!challengerResponse && !grandmasterResponse && !masterResponse) {
+          setHasError(true)
+        }
+      } catch (error) {
+        console.error('Error fetching league data:', error)
+        setHasError(true)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
 
   const getAllPlayers = () => {
     const players: LeagueEntry[] = []
     
-    if (challenger.data?.data.entries) {
-      players.push(...challenger.data.data.entries.slice(0, 10))
+    if (challengerData?.data?.entries) {
+      players.push(...challengerData.data.entries.slice(0, 10))
     }
-    if (grandmaster.data?.data.entries) {
-      players.push(...grandmaster.data.data.entries.slice(0, 10))
+    if (grandmasterData?.data?.entries) {
+      players.push(...grandmasterData.data.entries.slice(0, 10))
     }
-    if (master.data?.data.entries) {
-      players.push(...master.data.data.entries.slice(0, 10))
+    if (masterData?.data?.entries) {
+      players.push(...masterData.data.entries.slice(0, 10))
     }
 
     return players.sort(sortByRank)
@@ -119,19 +132,19 @@ export default function Leagues() {
           <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4" data-cy="stats-challenger">
             <h3 className="font-semibold text-white text-sm mb-2">Challenger</h3>
             <div className="text-2xl font-bold text-yellow-400">
-              {challenger.data?.data.entries?.slice(0, 10).length || 0}
+              {challengerData?.data?.entries?.slice(0, 10).length || 0}
             </div>
           </div>
           <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4" data-cy="stats-grandmaster">
             <h3 className="font-semibold text-white text-sm mb-2">Grandmaster</h3>
             <div className="text-2xl font-bold text-red-400">
-              {grandmaster.data?.data.entries?.slice(0, 10).length || 0}
+              {grandmasterData?.data?.entries?.slice(0, 10).length || 0}
             </div>
           </div>
           <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4" data-cy="stats-master">
             <h3 className="font-semibold text-white text-sm mb-2">Master</h3>
             <div className="text-2xl font-bold text-purple-400">
-              {master.data?.data.entries?.slice(0, 10).length || 0}
+              {masterData?.data?.entries?.slice(0, 10).length || 0}
             </div>
           </div>
         </div>
@@ -202,40 +215,6 @@ export default function Leagues() {
                       className="border-b border-white/10 hover:bg-white/5"
                       data-cy={`player-row-${index}`}
                     >
-                      <td className="px-6 py-4" data-cy={`player-position-${index}`}>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xl">{positionEmoji}</span>
-                          <span className="font-bold text-purple-400">#{position}</span>
-                        </div>
-                      </td>
-                      
-                      <td className="px-6 py-4" data-cy={`player-name-${index}`}>
-                        <div className="text-white font-semibold">
-                          {entry.summonerName || 'Carregando...'}
-                        </div>
-                      </td>
-                      
-                      <td className="px-6 py-4" data-cy={`player-tier-${index}`}>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xl">{getTierIcon(entry.tier)}</span>
-                          <span className={`font-semibold ${getTierColor(entry.tier)}`}>
-                            {entry.tier} {entry.rank || ''}
-                          </span>
-                        </div>
-                      </td>
-                      
-                      <td className="px-6 py-4" data-cy={`player-lp-${index}`}>
-                        <span className="text-yellow-400 font-bold">
-                          {entry.leaguePoints.toLocaleString()}
-                        </span>
-                      </td>
-                      
-                      <td className="px-6 py-4" data-cy={`player-wl-${index}`}>
-                        <span className="text-green-400 font-semibold">{entry.wins}</span>
-                        <span className="text-gray-400 mx-1">/</span>
-                        <span className="text-red-400 font-semibold">{entry.losses}</span>
-                      </td>
-                      
                       <td className="px-6 py-4" data-cy={`player-winrate-${index}`}>
                         <span className={`font-semibold ${getWinrateColor(winRate)}`}>
                           {winRate}%

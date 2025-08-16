@@ -1,5 +1,4 @@
-import { useState } from 'react'
-import { useQuery } from '@tanstack/react-query'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { searchPlayer, checkHealth } from '../src/api'
 import { calculateWinrate, getWinrateColor } from '../src/utils'
@@ -7,36 +6,48 @@ import { calculateWinrate, getWinrateColor } from '../src/utils'
 export default function Home() {
   const [gameName, setGameName] = useState('')
   const [tagLine, setTagLine] = useState('BR1')
-  const [searchKey, setSearchKey] = useState<string | null>(null)
+  const [playerData, setPlayerData] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState<any>(null)
+  const [healthData, setHealthData] = useState<any>(null)
 
-  const { data: healthData } = useQuery({
-    queryKey: ['health'],
-    queryFn: checkHealth,
-    refetchInterval: 30000,
-  })
+  useEffect(() => {
+    const checkApiHealth = async () => {
+      try {
+        const response = await checkHealth()
+        setHealthData(response.data)
+      } catch (err) {
+        console.error('Health check failed:', err)
+      }
+    }
 
-  const { data: playerData, isLoading, error } = useQuery({
-    queryKey: ['search', searchKey],
-    queryFn: () => {
-      if (!searchKey) return null
-      const [name, tag] = searchKey.split('#')
-      return searchPlayer(name, tag)
-    },
-    enabled: !!searchKey,
-    retry: false,
-  })
+    checkApiHealth()
+    const interval = setInterval(checkApiHealth, 30000)
+    return () => clearInterval(interval)
+  }, [])
 
-  const handleSearch = () => {
-    if (gameName.trim().length >= 2) {
-      const searchString = `${gameName.trim()}#${tagLine.trim()}`
-      setSearchKey(searchString)
+  const handleSearch = async () => {
+    if (gameName.trim().length < 2) return
+
+    setIsLoading(true)
+    setError(null)
+    setPlayerData(null)
+
+    try {
+      const response = await searchPlayer(gameName.trim(), tagLine.trim())
+      setPlayerData(response)
+    } catch (err) {
+      setError(err)
+    } finally {
+      setIsLoading(false)
     }
   }
 
   const handleClear = () => {
     setGameName('')
     setTagLine('BR1')
-    setSearchKey(null)
+    setPlayerData(null)
+    setError(null)
   }
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
