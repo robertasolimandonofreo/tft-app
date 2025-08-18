@@ -215,6 +215,37 @@ export default function Leagues() {
                       className="border-b border-white/10 hover:bg-white/5"
                       data-cy={`player-row-${index}`}
                     >
+                      <td className="px-6 py-4" data-cy={`player-position-${index}`}>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-lg">{positionEmoji}</span>
+                          <span className="font-semibold text-white">#{position}</span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4" data-cy={`player-name-${index}`}>
+                        <div className="text-white font-medium">
+                          {entry.summonerName || 'Loading...'}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4" data-cy={`player-tier-${index}`}>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-lg">{getTierIcon(entry.tier)}</span>
+                          <span className={`font-semibold ${getTierColor(entry.tier)}`}>
+                            {entry.tier}
+                          </span>
+                        </div>
+                      </td>
+                      <td className="px-6 py-4" data-cy={`player-lp-${index}`}>
+                        <span className="text-yellow-400 font-bold">
+                          {entry.leaguePoints} LP
+                        </span>
+                      </td>
+                      <td className="px-6 py-4" data-cy={`player-wl-${index}`}>
+                        <div className="text-sm">
+                          <span className="text-green-400">{entry.wins}W</span>
+                          <span className="text-white/60"> / </span>
+                          <span className="text-red-400">{entry.losses}L</span>
+                        </div>
+                      </td>
                       <td className="px-6 py-4" data-cy={`player-winrate-${index}`}>
                         <span className={`font-semibold ${getWinrateColor(winRate)}`}>
                           {winRate}%
