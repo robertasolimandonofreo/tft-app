@@ -1,5 +1,4 @@
 name: $(Build.BuildId)
-
 trigger:
   branches:
     include:
@@ -26,5 +25,6 @@ resources:
       name: robertasolimandonofreo/templates
       ref: refs/heads/main
       endpoint: github
+
 stages:
-  - template: main.yml@templates/azuredevops
+  - template: azuredevops/main.yml@templates
