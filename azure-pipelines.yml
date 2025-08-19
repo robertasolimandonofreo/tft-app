@@ -18,5 +18,5 @@ stages:
     steps:
     - script: |
         /home/azdouser/tools/mgc_cli/mgc -v
-        mgc virtual-machine instances list
+        /home/azdouser/tools/mgc_cli/mgc virtual-machine instances list
       displayName: Verify MGC CLI version
