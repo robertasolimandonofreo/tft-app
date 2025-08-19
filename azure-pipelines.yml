@@ -1,22 +1,30 @@
-trigger:
-- main
+name: $(Build.BuildId)
 
-resources:
-- repo: self
+trigger:
+  branches:
+    include:
+      - stage
+  paths:
+    exclude:
+      - cd/*
+      - ci/*
+      - Dockerfile
 
 variables:
   - group: variables
+  - name: appname
+    value: 'tft-app'
+  - name: apppath
+    value: '.'
+  - name: Dockerfile
+    value: 'Dockerfile'
 
+resources:
+  repositories:
+    - repository: templates
+      type: github
+      name: robertasolimandonofreo/templates
+      ref: refs/heads/main
+      endpoint: github
 stages:
-- stage: Build
-  displayName: Build image
-  jobs:
-  - job: Build
-    displayName: Build
-    pool:
-      name: agents
-    steps:
-    - script: |
-        /home/azdouser/tools/mgc_cli/mgc -v
-        /home/azdouser/tools/mgc_cli/mgc virtual-machine instances list
-      displayName: Verify MGC CLI version
+  - template: main.yml@templates/azuredevops
