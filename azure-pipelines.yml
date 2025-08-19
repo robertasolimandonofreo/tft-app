@@ -14,7 +14,7 @@ stages:
   - job: Build
     displayName: Build
     pool:
-      vmImage: ubuntu-latest
+      name: agents
     steps:
     - task: Docker@2
       displayName: Build an image
@@ -23,3 +23,6 @@ stages:
         dockerfile: '$(Build.SourcesDirectory)/Dockerfile'
         tags: |
           $(tag)
+    - script: |
+        docker run --rm $(tag) mgccli --version
+      displayName: Verify MGC CLI version
